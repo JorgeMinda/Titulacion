@@ -1,0 +1,117 @@
+<p-dialog
+    [visible]="visible()"
+    [header]="editMode() ? 'Editar Cupo de Matrícula' : 'Crear Nuevo Cupo'"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+    (onHide)="store.closeModal()">
+
+    <div class="flex flex-col gap-4 mt-2">
+        @if (!editMode()) {
+            <div class="custom-form-field">
+                <label class="text-sm font-medium text-slate-700 mb-1 block">Nivel Académico</label>
+                <div class="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <i class="pi pi-book text-blue-500 text-lg"></i>
+                    <span class="font-semibold text-blue-700 text-base">{{ selectedLevelName() }}</span>
+                </div>
+            </div>
+
+            <div class="custom-form-field">
+                <label
+                    appLabel
+                    for="workdayId"
+                    label="Horario"
+                    [field]="formData.workdayId">
+                </label>
+
+              <p-select
+                    id="workdayId"
+                    name="workdayId"
+                    [options]="workdays()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [(ngModel)]="formData.workdayId().value"
+                    placeholder="Seleccione un horario"
+                    appendTo="body"
+                    styleClass="w-full">
+                </p-select>
+
+                <small [appErrorMessage]="$any(formData.workdayId)"></small>
+            </div>
+        }
+
+        <div class="custom-form-field">
+            <label
+                appLabel
+                for="classroomId"
+                label="Aula"
+                [field]="formData.classroomId">
+            </label>
+
+            <p-select
+                id="classroomId"
+                name="classroomId"
+                [options]="classrooms()"
+                optionLabel="name"
+                optionValue="id"
+                [(ngModel)]="formData.classroomId().value"
+                placeholder="Seleccione un aula"
+                appendTo="body"
+                styleClass="w-full">
+            </p-select>
+
+            <small [appErrorMessage]="$any(formData.classroomId)"></small>
+        </div>
+
+        <div class="custom-form-field">
+            <label
+                appLabel
+                for="capacity"
+                label="Capacidad Máxima"
+                [field]="formData.capacity">
+            </label>
+
+            <p-inputNumber
+                id="capacity"
+                name="capacity"
+                [(ngModel)]="formData.capacity().value"
+                styleClass="w-full">
+            </p-inputNumber>
+
+            <small [appErrorMessage]="$any(formData.capacity)"></small>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-between items-center w-full">
+            @if (editMode()) {
+                <button
+                    pButton
+                    type="button"
+                    severity="danger"
+                    icon="pi pi-trash"
+                    label="Eliminar"
+                    (click)="store.confirmDelete()">
+                </button>
+            }
+
+            <div class="flex gap-2 ml-auto">
+                <button
+                    pButton
+                    type="button"
+                    severity="secondary"
+                    icon="pi pi-times"
+                    label="Cancelar"
+                    (click)="store.closeModal()">
+                </button>
+
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-check"
+                    [label]="editMode() ? 'Actualizar' : 'Guardar'"
+                    (click)="onSaveClick()">
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>

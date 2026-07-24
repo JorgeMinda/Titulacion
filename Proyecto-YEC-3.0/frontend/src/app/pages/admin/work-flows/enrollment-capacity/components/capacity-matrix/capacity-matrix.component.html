@@ -1,0 +1,52 @@
+<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 overflow-x-auto">
+    @if (matrix().length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+            <i class="pi pi-inbox text-4xl mb-3"></i>
+            <p>No hay cupos registrados para este nivel.</p>
+        </div>
+    } @else {
+        <div class="flex flex-col gap-6 min-w-[600px]">
+            @for (workday of matrix(); track workday.workdayId) {
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center border-b pb-2">
+                        <h4 class="text-md font-bold text-slate-700">{{ workday.workdayName }}</h4>
+                    </div>
+
+                    @for (block of workday.scheduleBlocks; track block) {
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
+                            @for (cell of block.cells; track cell.id) {
+                                <div
+                                    class="relative flex flex-col p-3 rounded-lg border-2 cursor-pointer transition-transform hover:scale-105"
+                                    [class.border-green-400]="cell.statusColor === 'green'"
+                                    [class.bg-green-50]="cell.statusColor === 'green'"
+                                    [class.border-orange-400]="cell.statusColor === 'orange'"
+                                    [class.bg-orange-50]="cell.statusColor === 'orange'"
+                                    [class.border-red-400]="cell.statusColor === 'red'"
+                                    [class.bg-red-50]="cell.statusColor === 'red'"
+                                    (click)="edit.emit(cell)">
+                                    @if (cell.academicLevel) {
+                                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 opacity-80">
+                                            {{ cell.academicLevel }}
+                                        </div>
+                                    }
+
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="font-black text-lg text-slate-800">{{ cell.classroom || 'Sin aula' }}</span>
+                                        <span class="text-xs font-bold px-2 py-1 rounded-full bg-white bg-opacity-60 text-slate-700">
+                                            {{ cell.enrolledCount }} / {{ cell.maxCapacity }}
+                                        </span>
+                                    </div>
+
+                                    <span class="text-xs text-slate-500 font-semibold truncate" title="{{ cell.subject }}">
+                                        <i class="pi pi-book mr-1"></i>
+                                        {{ cell.subject }}
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -3,7 +3,7 @@
     [header]="editMode() ? 'Editar Cupo de Matrícula' : 'Crear Nuevo Cupo'"
     [modal]="true"
     [style]="{ width: '450px' }"
-    (onHide)="store.closeModal()">
+    (onHide)="onHide()">
 
     <div class="flex flex-col gap-4 mt-2">
         @if (!editMode()) {
@@ -90,7 +90,7 @@
                     severity="danger"
                     icon="pi pi-trash"
                     label="Eliminar"
-                    (click)="store.confirmDelete()">
+                    (click)="onDeleteClick()">
                 </button>
             }
 
@@ -101,7 +101,7 @@
                     severity="secondary"
                     icon="pi pi-times"
                     label="Cancelar"
-                    (click)="store.closeModal()">
+                    (click)="onHide()">
                 </button>
 
                 <button

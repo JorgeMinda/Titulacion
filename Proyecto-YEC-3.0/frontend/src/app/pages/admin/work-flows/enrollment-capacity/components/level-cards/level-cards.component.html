@@ -1,9 +1,9 @@
-@if (store.subjects().length > 0) {
+@if (subjects().length > 0) {
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
         <h4 class="text-sm font-bold text-slate-600 mb-5 uppercase tracking-wider">Niveles Académicos</h4>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
-            @for (subject of store.subjects(); track subject.id) {
-                @let isSelected = subject.id === store.selectedSubjectId();
+            @for (subject of subjects(); track subject.id) {
+                @let isSelected = subject.id === selectedSubjectId();
 
                 <div
                     class="relative flex flex-col items-center justify-center gap-3 px-5 py-6 rounded-xl border-2 cursor-pointer transition-all duration-200 min-h-[120px] select-none"
@@ -21,5 +21,11 @@
                 </div>
             }
         </div>
+    </div>
+}
+
+@if (subjects().length === 0) {
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+        <p class="text-slate-500 text-center">No hay niveles académicos disponibles</p>
     </div>
 }

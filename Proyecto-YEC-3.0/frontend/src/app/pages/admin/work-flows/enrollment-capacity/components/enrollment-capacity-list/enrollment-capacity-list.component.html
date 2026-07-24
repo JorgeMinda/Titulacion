@@ -1,10 +1,17 @@
 <div class="flex flex-col gap-6 p-4">
-   
+    <p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000"></p-confirmDialog>
 
-    <app-filter-panel></app-filter-panel>
+    <app-filter-panel
+        [careers]="store.careers()"
+        [schoolPeriods]="store.schoolPeriods()">
+    </app-filter-panel>
 
     @if (store.hasBothFilters()) {
-        <app-level-cards></app-level-cards>
+        <app-level-cards
+            [subjects]="store.subjects()"
+            [selectedSubjectId]="store.selectedSubjectId()"
+            (selectSubject)="store.selectSubject($event)">
+        </app-level-cards>
     }
 
     @if (store.showDetails()) {
@@ -68,6 +75,9 @@
         [editMode]="store.isEditMode()"
         [workdays]="store.workdays()"
         [classrooms]="store.classrooms()"
-        [subjects]="store.subjects()">
+        [subjects]="store.subjects()"
+        (save)="confirmSave()"
+        (delete)="confirmDelete()"
+        (close)="store.closeModal()">
     </app-capacity-modal>
 </div>

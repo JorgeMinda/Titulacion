@@ -24,7 +24,7 @@
                 styleClass="w-full">
             </p-select>
 
-            <small [appErrorMessage]="$any(formData.careerId)"></small>
+            <small [appErrorMessage]="errorFields.careerId"></small>
         </div>
 
         <div class="custom-form-field md:col-span-6">
@@ -47,7 +47,7 @@
                 styleClass="w-full">
             </p-select>
 
-            <small [appErrorMessage]="$any(formData.schoolPeriodId)"></small>
+            <small [appErrorMessage]="errorFields.schoolPeriodId"></small>
         </div>
     </form>
 </div>

@@ -14,10 +14,6 @@ export function validateModalForm(schema: SchemaPathTree<ModalFormInterface>): v
         message: 'La capacidad máxima es 100',
     });
 
-    required(schema.classroomId, {
-        message: 'El aula es requerida',
-    });
-
     required(schema.workdayId, {
         message: 'La jornada es requerida',
     });

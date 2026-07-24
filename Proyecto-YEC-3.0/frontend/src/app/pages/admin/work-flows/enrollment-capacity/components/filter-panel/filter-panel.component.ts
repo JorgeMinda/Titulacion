@@ -25,6 +25,11 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
 
     protected readonly formData: FieldTree<FilterFormInterface> = this.buildForm();
 
+    protected readonly errorFields = {
+        careerId: this.formData.careerId as FieldTree<any>,
+        schoolPeriodId: this.formData.schoolPeriodId as FieldTree<any>,
+    };
+
     ngOnInit(): void {
         this.formRegistryService.register(
             'Filtros de Capacidad',

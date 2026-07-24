@@ -6,15 +6,15 @@
     (onHide)="onHide()">
 
     <div class="flex flex-col gap-4 mt-2">
-        @if (!editMode()) {
-            <div class="custom-form-field">
-                <label class="text-sm font-medium text-slate-700 mb-1 block">Nivel Académico</label>
-                <div class="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <i class="pi pi-book text-blue-500 text-lg"></i>
-                    <span class="font-semibold text-blue-700 text-base">{{ selectedLevelName() }}</span>
-                </div>
+        <div class="custom-form-field">
+            <label class="text-sm font-medium text-slate-700 mb-1 block">Nivel Académico</label>
+            <div class="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <i [class]="CustomIcons.BOOK_SOLID + ' text-blue-500 text-lg'"></i>
+                <span class="font-semibold text-blue-700 text-base">{{ selectedLevelName() }}</span>
             </div>
+        </div>
 
+        @if (!editMode()) {
             <div class="custom-form-field">
                 <label
                     appLabel
@@ -23,7 +23,7 @@
                     [field]="formData.workdayId">
                 </label>
 
-              <p-select
+                <p-select
                     id="workdayId"
                     name="workdayId"
                     [options]="workdays()"
@@ -35,32 +35,57 @@
                     styleClass="w-full">
                 </p-select>
 
-                <small [appErrorMessage]="$any(formData.workdayId)"></small>
+                <small [appErrorMessage]="errorFields.workdayId"></small>
+            </div>
+
+            <div class="custom-form-field">
+                <label
+                    appLabel
+                    for="parallelId"
+                    label="Paralelo"
+                    [field]="formData.parallelId">
+                </label>
+
+                <p-select
+                    id="parallelId"
+                    name="parallelId"
+                    [options]="parallels()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [(ngModel)]="formData.parallelId().value"
+                    placeholder="Seleccione un paralelo"
+                    appendTo="body"
+                    styleClass="w-full">
+                </p-select>
+
+                <small [appErrorMessage]="errorFields.parallelId"></small>
             </div>
         }
 
-        <div class="custom-form-field">
-            <label
-                appLabel
-                for="classroomId"
-                label="Aula"
-                [field]="formData.classroomId">
-            </label>
+        @if (editMode()) {
+            <div class="custom-form-field">
+                <label
+                    appLabel
+                    for="classroomId"
+                    label="Aula"
+                    [field]="formData.classroomId">
+                </label>
 
-            <p-select
-                id="classroomId"
-                name="classroomId"
-                [options]="classrooms()"
-                optionLabel="name"
-                optionValue="id"
-                [(ngModel)]="formData.classroomId().value"
-                placeholder="Seleccione un aula"
-                appendTo="body"
-                styleClass="w-full">
-            </p-select>
+                <p-select
+                    id="classroomId"
+                    name="classroomId"
+                    [options]="classrooms()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [(ngModel)]="formData.classroomId().value"
+                    placeholder="Seleccione un aula"
+                    appendTo="body"
+                    styleClass="w-full">
+                </p-select>
 
-            <small [appErrorMessage]="$any(formData.classroomId)"></small>
-        </div>
+                <small [appErrorMessage]="errorFields.classroomId"></small>
+            </div>
+        }
 
         <div class="custom-form-field">
             <label
@@ -77,7 +102,7 @@
                 styleClass="w-full">
             </p-inputNumber>
 
-            <small [appErrorMessage]="$any(formData.capacity)"></small>
+            <small [appErrorMessage]="errorFields.capacity"></small>
         </div>
     </div>
 

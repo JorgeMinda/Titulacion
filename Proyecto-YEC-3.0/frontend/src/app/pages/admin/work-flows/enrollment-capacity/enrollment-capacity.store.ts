@@ -1,11 +1,10 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
 import {rxResource} from '@angular/core/rxjs-interop';
 import {Observable, of} from 'rxjs';
 import {EnrollmentCapacityHttpService} from './enrollment-capacity.service';
 import {
     TeacherDistributionInterface,
     CatalogueInterface,
-    ClassroomInterface,
     FilterFormInterface,
     ModalFormInterface,
     RowInterface,
@@ -19,6 +18,9 @@ import {
     INITIAL_FILTER_FORM,
     INITIAL_MODAL_FORM,
     SubjectInterface,
+    CATALOGUE_TYPE_WORKDAY,
+    CATALOGUE_TYPE_CLASSROOM,
+    CATALOGUE_TYPE_PARALLEL,
 } from './enrollment-capacity.state';
 import {
     buildEnrollmentMatrix,
@@ -36,7 +38,7 @@ export class EnrollmentCapacityStore {
 
     readonly careers = signal<CatalogueInterface[]>([]);
     readonly schoolPeriods = signal<CatalogueInterface[]>([]);
-    readonly classrooms = signal<ClassroomInterface[]>([]);
+    readonly catalogues = signal<CatalogueInterface[]>([]);
 
     readonly modalVisible = signal<boolean>(false);
     readonly isEditMode = signal<boolean>(false);
@@ -46,7 +48,7 @@ export class EnrollmentCapacityStore {
 
     readonly careersError = signal<string | null>(null);
     readonly schoolPeriodsError = signal<string | null>(null);
-    readonly classroomsError = signal<string | null>(null);
+    readonly cataloguesError = signal<string | null>(null);
 
     private readonly subjectsResource = rxResource({
         params: () => this.filterForm().careerId || undefined,
@@ -90,33 +92,17 @@ export class EnrollmentCapacityStore {
         return this.distributions().filter((d) => d.subjectId === selected);
     });
 
-    readonly parallels = computed(() => {
-        const parallelsMap = new Map<string, CatalogueInterface>();
-        this.filteredDistributions().forEach((dist) => {
-            if (dist.parallel && !parallelsMap.has(dist.parallel.id)) {
-                parallelsMap.set(dist.parallel.id, {
-                    id: dist.parallel.id,
-                    name: dist.parallel.name,
-                    code: dist.parallel.code,
-                });
-            }
-        });
-        return Array.from(parallelsMap.values());
-    });
+    readonly parallels = computed(() =>
+        this.catalogues().filter((c) => c.type === CATALOGUE_TYPE_PARALLEL)
+    );
 
-    readonly workdays = computed(() => {
-        const workdaysMap = new Map<string, CatalogueInterface>();
-        this.filteredDistributions().forEach((dist) => {
-            if (dist.workday && !workdaysMap.has(dist.workday.id)) {
-                workdaysMap.set(dist.workday.id, {
-                    id: dist.workday.id,
-                    name: dist.workday.name,
-                    code: dist.workday.code,
-                });
-            }
-        });
-        return Array.from(workdaysMap.values());
-    });
+    readonly workdays = computed(() =>
+        this.catalogues().filter((c) => c.type === CATALOGUE_TYPE_WORKDAY)
+    );
+
+    readonly classrooms = computed(() =>
+        this.catalogues().filter((c) => c.type === CATALOGUE_TYPE_CLASSROOM)
+    );
 
     readonly matrix = computed(() =>
         buildEnrollmentMatrix(this.filteredDistributions(), this.enrolledCounts())
@@ -149,21 +135,35 @@ export class EnrollmentCapacityStore {
         return cell ? cell.enrolledCount > 0 : false;
     });
 
+    private readonly initTrigger = signal(0);
+
+    constructor() {
+        effect((onCleanup) => {
+            this.initTrigger();
+
+            const sub1 = this.httpService.findCareers().subscribe({
+                next: (data) => this.careers.set(data),
+                error: () => this.careersError.set('Error al cargar carreras'),
+            });
+            const sub2 = this.httpService.findSchoolPeriods().subscribe({
+                next: (data) => this.schoolPeriods.set(data),
+                error: () => this.schoolPeriodsError.set('Error al cargar períodos escolares'),
+            });
+            const sub3 = this.httpService.findCatalogues().subscribe({
+                next: (data) => this.catalogues.set(data),
+                error: () => this.cataloguesError.set('Error al cargar catálogos'),
+            });
+
+            onCleanup(() => {
+                sub1.unsubscribe();
+                sub2.unsubscribe();
+                sub3.unsubscribe();
+            });
+        });
+    }
+
     loadInitialData(): void {
-        this.httpService.findCareers().subscribe({
-            next: (data) => this.careers.set(data),
-            error: () => this.careersError.set('Error al cargar carreras'),
-        });
-
-        this.httpService.findSchoolPeriods().subscribe({
-            next: (data) => this.schoolPeriods.set(data),
-            error: () => this.schoolPeriodsError.set('Error al cargar períodos escolares'),
-        });
-
-        this.httpService.findClassrooms().subscribe({
-            next: (data) => this.classrooms.set(data),
-            error: () => this.classroomsError.set('Error al cargar aulas'),
-        });
+        this.initTrigger.update(c => c + 1);
     }
 
     selectSubject(subjectId: string | null): void {

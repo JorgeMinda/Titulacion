@@ -1,4 +1,4 @@
-import {Component, effect, inject, OnInit} from '@angular/core';
+import {Component, effect, inject} from '@angular/core';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -12,9 +12,10 @@ import {CellInterface} from '../../enrollment-capacity.state';
 import {BreadcrumbService} from '@layout/service/breadcrumb.service';
 import {MY_ROUTES} from '@routes';
 import {CustomMessageService, FormRegistryService} from '@utils/services';
+import {CustomIcons} from '@utils/icons/custom-icons';
 
 @Component({
-    selector: 'app-enrollment-capacity-list',
+    selector: 'app-enrollment-capacity-form',
     imports: [
         ConfirmDialog,
         ButtonModule,
@@ -24,14 +25,15 @@ import {CustomMessageService, FormRegistryService} from '@utils/services';
         CapacityModalComponent,
         LevelCardsComponent,
     ],
-    templateUrl: './enrollment-capacity-list.component.html',
+    templateUrl: './enrollment-capacity-form.component.html',
 })
-export class EnrollmentCapacityListComponent implements OnInit {
+export class EnrollmentCapacityFormComponent {
     private readonly breadcrumbService = inject(BreadcrumbService);
     private readonly confirmationService = inject(ConfirmationService);
     private readonly customMessageService = inject(CustomMessageService);
     private readonly formRegistryService = inject(FormRegistryService);
     protected readonly store = inject(EnrollmentCapacityStore);
+    protected readonly CustomIcons = CustomIcons;
 
     constructor() {
         this.breadcrumbService.setItems([
@@ -40,10 +42,6 @@ export class EnrollmentCapacityListComponent implements OnInit {
                 routerLink: MY_ROUTES.adminPages.enrollmentCapacity.absolute,
             },
         ]);
-    }
-
-    ngOnInit(): void {
-        this.store.loadInitialData();
     }
 
     protected openCreateModal(): void {
@@ -68,11 +66,11 @@ export class EnrollmentCapacityListComponent implements OnInit {
             message: isEdit
                 ? '¿Está seguro de actualizar este cupo?'
                 : '¿Está seguro de guardar este nuevo cupo?',
-            icon: 'pi pi-question-circle',
+            icon: CustomIcons.CIRCLE_QUESTION_SOLID,
             acceptLabel: isEdit ? 'Actualizar' : 'Guardar',
             rejectLabel: 'Cancelar',
-            acceptIcon: 'pi pi-check',
-            rejectIcon: 'pi pi-times',
+            acceptIcon: CustomIcons.CHECK_SOLID,
+            rejectIcon: CustomIcons.XMARK_SOLID,
             acceptButtonStyleClass: 'p-button-success',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => this.saveDistribution(),
@@ -93,11 +91,11 @@ export class EnrollmentCapacityListComponent implements OnInit {
             key: 'confirmdialog',
             header: 'Eliminar distribución',
             message: '¿Está seguro de eliminar este cupo?',
-            icon: 'pi pi-exclamation-triangle',
+            icon: CustomIcons.TRIANGLE_EXCLAMATION_SOLID,
             acceptLabel: 'Eliminar',
             rejectLabel: 'Cancelar',
-            acceptIcon: 'pi pi-trash',
-            rejectIcon: 'pi pi-times',
+            acceptIcon: CustomIcons.TRASH_CAN_SOLID,
+            rejectIcon: CustomIcons.XMARK_SOLID,
             acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary',
             accept: () => this.deleteDistribution(),
@@ -141,7 +139,7 @@ export class EnrollmentCapacityListComponent implements OnInit {
     private createDistribution(): void {
         const modalData = this.store.getModalData();
 
-        if (!modalData.subjectId || !modalData.workdayId || !modalData.classroomId) {
+        if (!modalData.subjectId || !modalData.workdayId || !modalData.parallelId) {
             this.customMessageService.showError({
                 summary: 'Error',
                 detail: 'Todos los campos son obligatorios',
@@ -149,11 +147,9 @@ export class EnrollmentCapacityListComponent implements OnInit {
             return;
         }
 
-        const parallelId = modalData.parallelId ?? this.store.getFirstParallelId();
-
         this.store.createDistribution({
             capacity: modalData.capacity,
-            parallelId,
+            parallelId: modalData.parallelId,
             workdayId: modalData.workdayId,
             subjectId: modalData.subjectId,
             schoolPeriodId: this.store.getFilterSchoolPeriodId(),

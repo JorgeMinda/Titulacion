@@ -2,7 +2,6 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable, map, catchError, of} from 'rxjs';
 import {
-    ClassroomInterface,
     TeacherDistributionInterface,
     FilterFormInterface,
     CreateTeacherDistributionPayload,
@@ -13,51 +12,47 @@ import {CatalogueInterface} from '@utils/interfaces';
 import {HttpResponseInterface} from '@utils/interfaces';
 import {environment} from '@env/environment';
 
+type RawCatalogueItem = { id: string; name: string; code?: string; acronym?: string };
+type RawSubjectItem = SubjectInterface;
+
 @Injectable({providedIn: 'root'})
 export class EnrollmentCapacityHttpService {
     private readonly httpClient = inject(HttpClient);
     private readonly apiUrl = environment.API_URL;
-//private readonly apiUrl = environment.ACADEMIC_COORDINATOR_API;
+
+    private extractArray<T>(response: HttpResponseInterface): T[] {
+        return Array.isArray(response.data) ? (response.data as T[]) : [];
+    }
+
     findCareers(): Observable<CatalogueInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/careers`).pipe(
-            map((response) => {
-                const data = Array.isArray(response.data) ? response.data : [];
-                return data.map((item: any) => ({
+            map((response) =>
+                this.extractArray<RawCatalogueItem>(response).map((item) => ({
                     id: item.id,
                     name: item.name,
-                    code: item.code || item.acronym,
-                }));
-            }),
+                    code: (item.code || item.acronym) ?? '',
+                }))
+            ),
             catchError(() => of([]))
         );
     }
 
     findSchoolPeriods(): Observable<CatalogueInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/school-periods`).pipe(
-            map((response) => {
-                const data = Array.isArray(response.data) ? response.data : [];
-                return data.map((item: any) => ({
+            map((response) =>
+                this.extractArray<RawCatalogueItem>(response).map((item) => ({
                     id: item.id,
                     name: item.name,
-                    code: item.code,
-                }));
-            }),
+                    code: item.code ?? '',
+                }))
+            ),
             catchError(() => of([]))
         );
     }
 
     findSubjectsByCareer(careerId: string): Observable<SubjectInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/careers/${careerId}/subjects`).pipe(
-            map((response) => {
-                const data = Array.isArray(response.data) ? response.data : [];
-                return data.map((item: any): SubjectInterface => ({
-                    id: item.id,
-                    name: item.name,
-                    code: item.code,
-                    academicPeriod: item.academicPeriod,
-                    curriculum: item.curriculum,
-                }));
-            }),
+            map((response) => this.extractArray<RawSubjectItem>(response)),
             catchError(() => of([]))
         );
     }
@@ -75,35 +70,31 @@ export class EnrollmentCapacityHttpService {
         });
 
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, {params}).pipe(
-            map((response) => {
-                return Array.isArray(response.data) ? response.data : [];
-            }),
+            map((response) => this.extractArray<TeacherDistributionInterface>(response)),
             catchError(() => of([]))
         );
     }
 
-    findClassrooms(): Observable<ClassroomInterface[]> {
-        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/classrooms`).pipe(
-            map((response) => {
-                return Array.isArray(response.data) ? response.data : [];
-            }),
+    findCatalogues(): Observable<CatalogueInterface[]> {
+        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/common/catalogues/cache`).pipe(
+            map((response) => (Array.isArray(response.data) ? response.data : []) as CatalogueInterface[]),
             catchError(() => of([]))
         );
     }
 
     register(payload: CreateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.post<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, payload).pipe(
-            map((response) => {
-                return Array.isArray(response.data) ? response.data[0] : response.data;
-            })
+            map((response): TeacherDistributionInterface =>
+                Array.isArray(response.data) ? response.data[0] : response.data as TeacherDistributionInterface
+            )
         );
     }
 
     update(id: string, payload: UpdateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.patch<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/${id}`, payload).pipe(
-            map((response) => {
-                return Array.isArray(response.data) ? response.data[0] : response.data;
-            })
+            map((response): TeacherDistributionInterface =>
+                Array.isArray(response.data) ? response.data[0] : response.data as TeacherDistributionInterface
+            )
         );
     }
 
@@ -113,9 +104,7 @@ export class EnrollmentCapacityHttpService {
         }
         const params = new HttpParams().set('ids', distributionIds.join(','));
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/enrolled-counts`, {params}).pipe(
-            map((response) => {
-                return response.data || {};
-            }),
+            map((response) => (response.data || {}) as Record<string, number>),
             catchError(() => of({}))
         );
     }

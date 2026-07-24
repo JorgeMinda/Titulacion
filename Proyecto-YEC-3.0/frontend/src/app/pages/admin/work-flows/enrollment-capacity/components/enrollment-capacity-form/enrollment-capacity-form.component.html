@@ -19,7 +19,7 @@
             <button
                 pButton
                 type="button"
-                icon="pi pi-plus"
+                [icon]="CustomIcons.PLUS_SOLID"
                 label="Agregar Nuevo Cupo"
                 (click)="openCreateModal()">
             </button>
@@ -41,7 +41,7 @@
             </div>
         } @else {
             <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-                <i class="pi pi-inbox text-5xl text-slate-300 mb-4"></i>
+                <i [class]="CustomIcons.INBOX_SOLID + ' text-5xl text-slate-300 mb-4'"></i>
                 <h3 class="text-lg font-bold text-slate-600">Sin cupos registrados</h3>
                 <p class="text-slate-500 max-w-md mt-2">
                     Este nivel académico aún no tiene cupos registrados. Presione el botón <strong>"Agregar Nuevo Cupo"</strong> para crear el primer cupo.
@@ -52,7 +52,7 @@
 
     @if (!store.hasBothFilters()) {
         <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-            <i class="pi pi-filter text-5xl text-slate-300 mb-4"></i>
+            <i [class]="CustomIcons.FILTER_SOLID + ' text-5xl text-slate-300 mb-4'"></i>
             <h3 class="text-lg font-bold text-slate-600">Seleccione los filtros principales</h3>
             <p class="text-slate-500 max-w-md mt-2">
                 Debe seleccionar una Carrera y un Período Escolar para visualizar la matriz de cupos y las estadísticas.
@@ -62,7 +62,7 @@
 
     @if (store.hasBothFilters() && !store.showDetails()) {
         <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
-            <i class="pi pi-arrow-up text-5xl text-slate-300 mb-4"></i>
+            <i [class]="CustomIcons.ARROW_UP_SOLID + ' text-5xl text-slate-300 mb-4'"></i>
             <h3 class="text-lg font-bold text-slate-600">Seleccione un nivel académico</h3>
             <p class="text-slate-500 max-w-md mt-2">
                 Elija uno de los niveles académicos disponibles para ver sus estadísticas y gestionar los cupos.
@@ -74,6 +74,7 @@
         [visible]="store.modalVisible()"
         [editMode]="store.isEditMode()"
         [workdays]="store.workdays()"
+        [parallels]="store.parallels()"
         [classrooms]="store.classrooms()"
         [subjects]="store.subjects()"
         (save)="confirmSave()"

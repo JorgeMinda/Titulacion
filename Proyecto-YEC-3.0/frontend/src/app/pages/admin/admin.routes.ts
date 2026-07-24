@@ -4,7 +4,7 @@ import {
     CareerListComponent
 } from "@modules/admin/work-flows/career/components/career-list/career-list.component";
 import {CareerFormComponent} from "@modules/admin/work-flows/career/components/career-form/career-form.component";
-import { EnrollmentCapacityListComponent } from './work-flows/enrollment-capacity/components/enrollment-capacity-list/enrollment-capacity-list.component';
+import { EnrollmentCapacityFormComponent } from './work-flows/enrollment-capacity/components/enrollment-capacity-form/enrollment-capacity-form.component';
 
 export default [
     {
@@ -20,6 +20,6 @@ export default [
     {
     path: MY_ROUTES.adminPages.enrollmentCapacity.base,
     title: 'Capacidad de Matrícula',
-    loadComponent: () => EnrollmentCapacityListComponent
+    loadComponent: () => EnrollmentCapacityFormComponent
 }
 ] as Routes;

@@ -21,13 +21,9 @@ export interface SubjectInterface {
     };
 }
 
-export interface ClassroomInterface {
-    id: string;
-    name: string;
-    capacity: number;
-    code?: string;
-    location?: string;
-}
+export const CATALOGUE_TYPE_WORKDAY = 'ENROLLMENTS_WORKDAY';
+export const CATALOGUE_TYPE_CLASSROOM = 'ENROLLMENTS_CLASSROOM';
+export const CATALOGUE_TYPE_PARALLEL = 'PARALLEL';
 
 export interface TeacherDistributionInterface {
     id: string;

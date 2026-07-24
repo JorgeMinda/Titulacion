@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { DataSource, In, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ConfigEnum } from '@utils/enums';
 import { CoreRepositoryEnum } from '@modules/core/shared-core/enums';
-import { TeacherDistributionEntity } from '@modules/core/entities';
+import { EnrollmentDetailEntity, EnrollmentEntity, TeacherDistributionEntity } from '@modules/core/entities';
 import {
   CreateTeacherDistributionDto,
   FilterTeacherDistributionDto,
@@ -106,17 +106,27 @@ export class TeacherDistributionsService {
   async findEnrolledCounts(ids: string[]): Promise<Record<string, number>> {
     if (!ids.length) return {};
 
-    // FIXME: REMOVER EN PRODUCCIÓN — datos ficticios para probar semáforo y estadísticas
-    const distributions = await this.repository.find({
-      where: { id: In(ids) },
-      select: { id: true, capacity: true },
-    });
+    const rows = await this.repository
+      .createQueryBuilder('td')
+      .select('td.id', 'id')
+      .addSelect('COUNT(DISTINCT ed.enrollment_id)', 'count')
+      .leftJoin(
+        EnrollmentDetailEntity,
+        'ed',
+        'ed.subject_id = td.subject_id AND ed.parallel_id = td.parallel_id AND ed.workday_id = td.workday_id AND ed.deleted_at IS NULL',
+      )
+      .leftJoin(
+        EnrollmentEntity,
+        'e',
+        'e.id = ed.enrollment_id AND e.school_period_id = td.school_period_id AND e.deleted_at IS NULL',
+      )
+      .where('td.id IN (:...ids)', { ids })
+      .groupBy('td.id')
+      .getRawMany();
 
     const result: Record<string, number> = {};
-    for (const dist of distributions) {
-      const max = dist.capacity || 30;
-      const enrolled = Math.round(Math.random() * max);
-      result[dist.id] = enrolled;
+    for (const row of rows) {
+      result[row.id] = Number(row.count);
     }
 
     return result;

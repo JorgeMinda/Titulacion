@@ -12,18 +12,17 @@
                 [field]="formData.careerId">
             </label>
 
-            <p-select
-                id="careerId"
-                name="careerId"
-                [options]="careers()"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Seleccione la carrera"
-                [(ngModel)]="formData.careerId().value"
-                appendTo="body"
-                styleClass="w-full">
-            </p-select>
-
+ <p-select
+    id="careerId"
+    name="careerId"
+    [options]="store.careers()"
+    optionLabel="name"
+    optionValue="id"
+    placeholder="Seleccione la carrera"
+    [(ngModel)]="formData.careerId().value"
+    appendTo="body"
+    styleClass="w-full">
+</p-select>
             <small [appErrorMessage]="errorFields.careerId"></small>
         </div>
 
@@ -35,17 +34,17 @@
                 [field]="formData.schoolPeriodId">
             </label>
 
-            <p-select
-                id="schoolPeriodId"
-                name="schoolPeriodId"
-                [options]="schoolPeriods()"
-                optionLabel="name"
-                optionValue="id"
-                placeholder="Seleccione"
-                [(ngModel)]="formData.schoolPeriodId().value"
-                appendTo="body"
-                styleClass="w-full">
-            </p-select>
+<p-select
+    id="schoolPeriodId"
+    name="schoolPeriodId"
+    [options]="store.schoolPeriods()"
+    optionLabel="name"
+    optionValue="id"
+    placeholder="Seleccione"
+    [(ngModel)]="formData.schoolPeriodId().value"
+    appendTo="body"
+    styleClass="w-full">
+</p-select>
 
             <small [appErrorMessage]="errorFields.schoolPeriodId"></small>
         </div>

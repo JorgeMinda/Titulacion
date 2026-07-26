@@ -1,4 +1,5 @@
-import {Component, effect, inject} from '@angular/core';
+import {Component, DestroyRef, inject} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
 import {ButtonModule} from 'primeng/button';
@@ -8,6 +9,8 @@ import {CapacityMatrixComponent} from '../capacity-matrix/capacity-matrix.compon
 import {CapacityModalComponent} from '../capacity-modal/capacity-modal.component';
 import {LevelCardsComponent} from '../level-cards/level-cards.component';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
+import {EnrollmentCapacitySelectors} from '../logic/enrollment-capacity.selectors';
+import {EnrollmentCapacityActions} from '../logic/enrollment-capacity.actions';
 import {CellInterface} from '../../enrollment-capacity.state';
 import {BreadcrumbService} from '@layout/service/breadcrumb.service';
 import {MY_ROUTES} from '@routes';
@@ -32,7 +35,10 @@ export class EnrollmentCapacityFormComponent {
     private readonly confirmationService = inject(ConfirmationService);
     private readonly customMessageService = inject(CustomMessageService);
     private readonly formRegistryService = inject(FormRegistryService);
+    private readonly destroyRef = inject(DestroyRef);
     protected readonly store = inject(EnrollmentCapacityStore);
+    protected readonly selectors = inject(EnrollmentCapacitySelectors);
+    protected readonly actions = inject(EnrollmentCapacityActions);
     protected readonly CustomIcons = CustomIcons;
 
     constructor() {
@@ -45,11 +51,11 @@ export class EnrollmentCapacityFormComponent {
     }
 
     protected openCreateModal(): void {
-        this.store.openCreateModal(this.store.selectedSubjectId() ?? undefined);
+        this.actions.openCreateModal(this.store.selectedSubjectId() ?? undefined);
     }
 
     protected openEditModal(cell: CellInterface): void {
-        this.store.openEditModal(cell);
+        this.actions.openEditModal(cell);
     }
 
     protected confirmSave(): void {
@@ -78,8 +84,8 @@ export class EnrollmentCapacityFormComponent {
     }
 
     protected confirmDelete(): void {
-        if (this.store.selectedCellHasEnrolledStudents()) {
-            const cell = this.store.getSelectedCellDistribution();
+        if (this.selectors.selectedCellHasEnrolledStudents()) {
+            const cell = this.store.selectedCell();
             this.customMessageService.showError({
                 summary: 'No se puede eliminar',
                 detail: `El cupo tiene ${cell?.enrolledCount} estudiante(s) matriculado(s). No se puede eliminar un cupo con estudiantes asignados.`,
@@ -103,76 +109,29 @@ export class EnrollmentCapacityFormComponent {
     }
 
     private saveDistribution(): void {
-        if (this.store.isEditMode()) {
-            this.updateDistribution();
-        } else {
-            this.createDistribution();
-        }
-    }
+        const modalData = this.store.modalForm();
 
-    private updateDistribution(): void {
-        const cell = this.store.getSelectedCellDistribution();
-        if (!cell) return;
-
-        const modalData = this.store.getModalData();
-
-        this.store.updateDistribution({
-            capacity: modalData.capacity,
-            parallelId: cell.parallelId,
-            workdayId: cell.workdayId,
-            subjectId: cell.subjectId,
-            schoolPeriodId: cell.schoolPeriodId,
-            classroomId: modalData.classroomId || cell.classroomId,
-        }).subscribe({
-            next: () => {
-                this.store.onSaveSuccess();
-            },
+        this.actions.save({
+            modalData,
+            firstParallelId: this.selectors.firstParallelId(),
+        }).pipe(
+            takeUntilDestroyed(this.destroyRef),
+        ).subscribe({
+            next: () => this.actions.onSaveSuccess(),
             error: (err: any) => {
                 this.customMessageService.showError({
                     summary: 'Error',
-                    detail: err.error?.message || 'No se pudo actualizar la distribución',
-                });
-            },
-        });
-    }
-
-    private createDistribution(): void {
-        const modalData = this.store.getModalData();
-
-        if (!modalData.subjectId || !modalData.workdayId || !modalData.parallelId) {
-            this.customMessageService.showError({
-                summary: 'Error',
-                detail: 'Todos los campos son obligatorios',
-            });
-            return;
-        }
-
-        this.store.createDistribution({
-            capacity: modalData.capacity,
-            parallelId: modalData.parallelId,
-            workdayId: modalData.workdayId,
-            subjectId: modalData.subjectId,
-            schoolPeriodId: this.store.getFilterSchoolPeriodId(),
-            classroomId: modalData.classroomId,
-            hours: modalData.hours || 4,
-        }).subscribe({
-            next: () => {
-                this.store.onSaveSuccess();
-            },
-            error: (err: any) => {
-                this.customMessageService.showError({
-                    summary: 'Error',
-                    detail: err.error?.message || 'No se pudo crear la distribución',
+                    detail: err.error?.message || 'No se pudo guardar la distribución',
                 });
             },
         });
     }
 
     private deleteDistribution(): void {
-        this.store.deleteDistribution().subscribe({
-            next: () => {
-                this.store.onSaveSuccess();
-            },
+        this.actions.delete().pipe(
+            takeUntilDestroyed(this.destroyRef),
+        ).subscribe({
+            next: () => this.actions.onSaveSuccess(),
             error: (err: any) => {
                 this.customMessageService.showError({
                     summary: 'Error',

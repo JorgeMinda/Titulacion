@@ -1,7 +1,3 @@
-import {CatalogueInterface} from '@utils/interfaces';
-
-export type {CatalogueInterface};
-
 export interface SubjectInterface {
     id: string;
     name: string;
@@ -104,15 +100,13 @@ export interface CellInterface {
     teacherDistributionId: string;
 }
 
-export interface BlockInterface {
-    scheduleName: string;
-    cells: CellInterface[];
-}
-
 export interface RowInterface {
     workdayId: string;
     workdayName: string;
-    scheduleBlocks: BlockInterface[];
+    scheduleBlocks: {
+        scheduleName: string;
+        cells: CellInterface[];
+    }[];
 }
 
 export interface EnrollmentCapacityStatistics {
@@ -140,11 +134,18 @@ export interface CourseStatistics {
     percentage: number;
 }
 
+// ── Filtros ─────────────────────────────────────────────
 export interface FilterFormInterface {
     careerId: string;
     schoolPeriodId: string;
 }
 
+export const INITIAL_FILTER_FORM = {
+    careerId: '',
+    schoolPeriodId: '',
+} satisfies FilterFormInterface;
+
+// ── Formulario del modal ────────────────────────────────
 export interface ModalFormInterface {
     capacity: number;
     parallelId: string | null;
@@ -154,6 +155,15 @@ export interface ModalFormInterface {
     teacherId?: string;
     hours?: number;
 }
+
+export const INITIAL_MODAL_FORM = {
+    capacity: 30,
+    parallelId: null,
+    workdayId: null,
+    subjectId: null,
+    classroomId: null,
+    hours: 4,
+} satisfies ModalFormInterface;
 
 export interface CreateTeacherDistributionPayload {
     capacity: number;
@@ -174,6 +184,7 @@ export interface UpdateTeacherDistributionPayload {
     classroomId?: string | null;
 }
 
+// ── Gráfico ──────────────────────────────────────────────
 export interface ChartDataInterface {
     labels: string[];
     datasets: {
@@ -195,21 +206,7 @@ export interface ChartOptionsInterface {
     };
 }
 
-export const INITIAL_FILTER_FORM: FilterFormInterface = {
-    careerId: '',
-    schoolPeriodId: '',
-};
-
-export const INITIAL_MODAL_FORM: ModalFormInterface = {
-    capacity: 30,
-    parallelId: null,
-    workdayId: null,
-    subjectId: null,
-    classroomId: null,
-    hours: 4,
-};
-
-export const DEFAULT_CHART_OPTIONS: ChartOptionsInterface = {
+export const DEFAULT_CHART_OPTIONS = {
     cutout: '60%',
     plugins: {
         legend: {
@@ -219,4 +216,4 @@ export const DEFAULT_CHART_OPTIONS: ChartOptionsInterface = {
             },
         },
     },
-};
+} satisfies ChartOptionsInterface;

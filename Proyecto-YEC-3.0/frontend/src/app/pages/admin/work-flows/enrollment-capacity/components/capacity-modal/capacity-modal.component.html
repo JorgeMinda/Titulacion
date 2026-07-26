@@ -38,28 +38,6 @@
                 <small [appErrorMessage]="errorFields.workdayId"></small>
             </div>
 
-            <div class="custom-form-field">
-                <label
-                    appLabel
-                    for="parallelId"
-                    label="Paralelo"
-                    [field]="formData.parallelId">
-                </label>
-
-                <p-select
-                    id="parallelId"
-                    name="parallelId"
-                    [options]="parallels()"
-                    optionLabel="name"
-                    optionValue="id"
-                    [(ngModel)]="formData.parallelId().value"
-                    placeholder="Seleccione un paralelo"
-                    appendTo="body"
-                    styleClass="w-full">
-                </p-select>
-
-                <small [appErrorMessage]="errorFields.parallelId"></small>
-            </div>
         }
 
         @if (editMode()) {

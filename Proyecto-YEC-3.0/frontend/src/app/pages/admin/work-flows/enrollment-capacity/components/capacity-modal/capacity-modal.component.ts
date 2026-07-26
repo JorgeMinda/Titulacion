@@ -2,6 +2,7 @@ import {Component, computed, inject, input, output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {FieldTree, form} from '@angular/forms/signals';
 import {Dialog} from 'primeng/dialog';
+import { CatalogueInterface } from '@utils/interfaces';
 import {Select} from 'primeng/select';
 import {ButtonModule} from 'primeng/button';
 import {InputNumber} from 'primeng/inputnumber';
@@ -9,7 +10,7 @@ import {LabelDirective} from '@utils/directives/label.directive';
 import {ErrorMessageDirective} from '@utils/directives/error-message.directive';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
 import {
-    CatalogueInterface,
+   
     ModalFormInterface,
     SubjectInterface,
 } from '../../enrollment-capacity.state';
@@ -28,7 +29,6 @@ export class CapacityModalComponent {
     readonly visible = input.required<boolean>();
     readonly editMode = input.required<boolean>();
     readonly workdays = input.required<CatalogueInterface[]>();
-    readonly parallels = input.required<CatalogueInterface[]>();
     readonly classrooms = input.required<CatalogueInterface[]>();
     readonly subjects = input.required<SubjectInterface[]>();
 
@@ -47,7 +47,6 @@ export class CapacityModalComponent {
 
     protected readonly errorFields = {
         workdayId: this.formData.workdayId as FieldTree<any>,
-        parallelId: this.formData.parallelId as FieldTree<any>,
         classroomId: this.formData.classroomId as FieldTree<any>,
         capacity: this.formData.capacity as FieldTree<any>,
     };

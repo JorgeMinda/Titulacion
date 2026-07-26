@@ -1,12 +1,9 @@
 <div class="flex flex-col gap-6 p-4">
     <p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000"></p-confirmDialog>
 
-    <app-filter-panel
-        [careers]="store.careers()"
-        [schoolPeriods]="store.schoolPeriods()">
-    </app-filter-panel>
+    <app-filter-panel></app-filter-panel>
 
-    @if (store.hasBothFilters()) {
+    @if (selectors.hasBothFilters()) {
         <app-level-cards
             [subjects]="store.subjects()"
             [selectedSubjectId]="store.selectedSubjectId()"
@@ -14,7 +11,7 @@
         </app-level-cards>
     }
 
-    @if (store.showDetails()) {
+    @if (selectors.showDetails()) {
         <div class="flex justify-end">
             <button
                 pButton
@@ -25,17 +22,17 @@
             </button>
         </div>
 
-        @if (store.hasSelectedLevelDistributions()) {
+        @if (selectors.hasSelectedLevelDistributions()) {
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <app-statistics-panel
-                    [chartData]="store.chartData()"
+                    [chartData]="selectors.chartData()"
                     [chartOptions]="store.chartOptions()"
-                    [statistics]="store.statistics()">
+                    [statistics]="selectors.statistics()">
                 </app-statistics-panel>
 
                 <app-capacity-matrix
                     class="col-span-1 lg:col-span-3"
-                    [matrix]="store.matrix()"
+                    [matrix]="selectors.matrix()"
                     (edit)="openEditModal($event)">
                 </app-capacity-matrix>
             </div>
@@ -50,7 +47,7 @@
         }
     }
 
-    @if (!store.hasBothFilters()) {
+    @if (!selectors.hasBothFilters()) {
         <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
             <i [class]="CustomIcons.FILTER_SOLID + ' text-5xl text-slate-300 mb-4'"></i>
             <h3 class="text-lg font-bold text-slate-600">Seleccione los filtros principales</h3>
@@ -60,7 +57,7 @@
         </div>
     }
 
-    @if (store.hasBothFilters() && !store.showDetails()) {
+    @if (selectors.hasBothFilters() && !selectors.showDetails()) {
         <div class="bg-white p-12 rounded-xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
             <i [class]="CustomIcons.ARROW_UP_SOLID + ' text-5xl text-slate-300 mb-4'"></i>
             <h3 class="text-lg font-bold text-slate-600">Seleccione un nivel académico</h3>
@@ -73,9 +70,8 @@
     <app-capacity-modal
         [visible]="store.modalVisible()"
         [editMode]="store.isEditMode()"
-        [workdays]="store.workdays()"
-        [parallels]="store.parallels()"
-        [classrooms]="store.classrooms()"
+        [workdays]="selectors.workdays()"
+        [classrooms]="selectors.classrooms()"
         [subjects]="store.subjects()"
         (save)="confirmSave()"
         (delete)="confirmDelete()"

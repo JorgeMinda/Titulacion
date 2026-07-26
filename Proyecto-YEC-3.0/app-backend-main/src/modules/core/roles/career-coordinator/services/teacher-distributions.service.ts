@@ -103,32 +103,47 @@ export class TeacherDistributionsService {
     return await this.repository.softRemove(entity);
   }
 
-  async findEnrolledCounts(ids: string[]): Promise<Record<string, number>> {
-    if (!ids.length) return {};
+ async findEnrolledCounts(ids: string[]): Promise<Record<string, number>> {
+  if (!ids.length) return {};
 
-    const rows = await this.repository
-      .createQueryBuilder('td')
-      .select('td.id', 'id')
-      .addSelect('COUNT(DISTINCT ed.enrollment_id)', 'count')
-      .leftJoin(
-        EnrollmentDetailEntity,
-        'ed',
-        'ed.subject_id = td.subject_id AND ed.parallel_id = td.parallel_id AND ed.workday_id = td.workday_id AND ed.deleted_at IS NULL',
-      )
-      .leftJoin(
-        EnrollmentEntity,
-        'e',
-        'e.id = ed.enrollment_id AND e.school_period_id = td.school_period_id AND e.deleted_at IS NULL',
-      )
-      .where('td.id IN (:...ids)', { ids })
-      .groupBy('td.id')
-      .getRawMany();
+  const rows = await this.repository
+    .createQueryBuilder('td')
+    .select('td.id', 'id')
+    .addSelect('COUNT(DISTINCT e.id)', 'count') // mejor contar desde Enrollment
+    .leftJoin(
+      EnrollmentDetailEntity,
+      'ed',
+      `ed.subject_id = td.subject_id
+       AND ed.parallel_id = td.parallel_id
+       AND ed.workday_id = td.workday_id
+       AND ed.deleted_at IS NULL`,
+    )
+    .leftJoin(
+      EnrollmentEntity,
+      'e',
+      `e.id = ed.enrollment_id
+       AND e.school_period_id = td.school_period_id
+       AND e.deleted_at IS NULL`,
+    )
+    .where('td.id IN (:...ids)', { ids })
+    .andWhere('td.deleted_at IS NULL') // opcional pero recomendado
+    .groupBy('td.id')
+    .getRawMany();
 
-    const result: Record<string, number> = {};
-    for (const row of rows) {
-      result[row.id] = Number(row.count);
-    }
+  const result: Record<string, number> = {};
 
-    return result;
+  // Llenar los que sí tienen matrículas
+  for (const row of rows) {
+    result[row.id] = Number(row.count) || 0;
   }
+
+  // Asegurar que todos los IDs solicitados aparezcan (incluso con 0)
+  for (const id of ids) {
+    if (!(id in result)) {
+      result[id] = 0;
+    }
+  }
+
+  return result;
+}
 }

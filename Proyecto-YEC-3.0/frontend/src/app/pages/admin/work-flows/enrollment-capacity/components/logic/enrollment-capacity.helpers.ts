@@ -6,7 +6,7 @@ import {
     ShiftStatistics,
     CourseStatistics,
     ChartDataInterface,
-} from './enrollment-capacity.state';
+} from '../../enrollment-capacity.state';
 
 const FALLBACK_WORKDAY = 'Sin Jornada';
 const FALLBACK_SUBJECT = 'Sin Materia';

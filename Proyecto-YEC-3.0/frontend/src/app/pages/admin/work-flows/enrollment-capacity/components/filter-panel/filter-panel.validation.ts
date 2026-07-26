@@ -5,4 +5,7 @@ export function validateFilterForm(schema: SchemaPathTree<FilterFormInterface>):
     required(schema.schoolPeriodId, {
         message: 'El período escolar es requerido',
     });
+    required(schema.careerId, {
+    message: 'La carrera es requerida',
+});
 }

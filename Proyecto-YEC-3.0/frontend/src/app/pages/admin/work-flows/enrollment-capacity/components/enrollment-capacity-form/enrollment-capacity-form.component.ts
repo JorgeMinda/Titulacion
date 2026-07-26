@@ -11,7 +11,7 @@ import {LevelCardsComponent} from '../level-cards/level-cards.component';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
 import {EnrollmentCapacitySelectors} from '../logic/enrollment-capacity.selectors';
 import {EnrollmentCapacityActions} from '../logic/enrollment-capacity.actions';
-import {CellInterface} from '../../enrollment-capacity.state';
+import {CellInterface, ERROR_MESSAGES} from '../../enrollment-capacity.state';
 import {BreadcrumbService} from '@layout/service/breadcrumb.service';
 import {MY_ROUTES} from '@routes';
 import {CustomMessageService, FormRegistryService} from '@utils/services';
@@ -121,7 +121,7 @@ export class EnrollmentCapacityFormComponent {
             error: (err: any) => {
                 this.customMessageService.showError({
                     summary: 'Error',
-                    detail: err.error?.message || 'No se pudo guardar la distribución',
+                    detail: err.error?.message || ERROR_MESSAGES.SAVE_DISTRIBUTION,
                 });
             },
         });
@@ -135,7 +135,7 @@ export class EnrollmentCapacityFormComponent {
             error: (err: any) => {
                 this.customMessageService.showError({
                     summary: 'Error',
-                    detail: err.error?.message || 'No se pudo eliminar la distribución',
+                    detail: err.error?.message || ERROR_MESSAGES.DELETE_DISTRIBUTION,
                 });
             },
         });

@@ -1,6 +1,6 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable, map, catchError, of} from 'rxjs';
+import {Observable, map, of, tap, catchError} from 'rxjs';
 import {
     TeacherDistributionInterface,
     FilterFormInterface,
@@ -13,7 +13,6 @@ import {HttpResponseInterface} from '@utils/interfaces';
 import {environment} from '@env/environment';
 
 type RawCatalogueItem = { id: string; name: string; code?: string; acronym?: string };
-type RawSubjectItem = SubjectInterface;
 
 @Injectable({providedIn: 'root'})
 export class EnrollmentCapacityHttpService {
@@ -33,7 +32,10 @@ export class EnrollmentCapacityHttpService {
                     code: (item.code || item.acronym) ?? '',
                 }))
             ),
-            catchError(() => of([]))
+            catchError((err) => {
+                console.error('Error fetching careers:', err);
+                return of([]);
+            }),
         );
     }
 
@@ -46,14 +48,20 @@ export class EnrollmentCapacityHttpService {
                     code: item.code ?? '',
                 }))
             ),
-            catchError(() => of([]))
+            catchError((err) => {
+                console.error('Error fetching school periods:', err);
+                return of([]);
+            }),
         );
     }
 
     findSubjectsByCareer(careerId: string): Observable<SubjectInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/careers/${careerId}/subjects`).pipe(
-            map((response) => this.extractArray<RawSubjectItem>(response)),
-            catchError(() => of([]))
+            map((response) => this.extractArray<SubjectInterface>(response)),
+            catchError((err) => {
+                console.error('Error fetching subjects:', err);
+                return of([]);
+            }),
         );
     }
 
@@ -71,14 +79,20 @@ export class EnrollmentCapacityHttpService {
 
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, {params}).pipe(
             map((response) => this.extractArray<TeacherDistributionInterface>(response)),
-            catchError(() => of([]))
+            catchError((err) => {
+                console.error('Error fetching distributions:', err);
+                return of([]);
+            }),
         );
     }
 
     findCatalogues(): Observable<CatalogueInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/common/catalogues/cache`).pipe(
             map((response) => (Array.isArray(response.data) ? response.data : []) as CatalogueInterface[]),
-            catchError(() => of([]))
+            catchError((err) => {
+                console.error('Error fetching catalogues:', err);
+                return of([]);
+            }),
         );
     }
 
@@ -105,7 +119,10 @@ export class EnrollmentCapacityHttpService {
         const params = new HttpParams().set('ids', distributionIds.join(','));
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/enrolled-counts`, {params}).pipe(
             map((response) => (response.data || {}) as Record<string, number>),
-            catchError(() => of({}))
+            catchError((err) => {
+                console.error('Error fetching enrolled counts:', err);
+                return of({});
+            }),
         );
     }
 

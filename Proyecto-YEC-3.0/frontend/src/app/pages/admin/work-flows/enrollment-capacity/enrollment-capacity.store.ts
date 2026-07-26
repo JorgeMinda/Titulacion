@@ -18,7 +18,6 @@ import {
 @Injectable({providedIn: 'root'})
 export class EnrollmentCapacityStore {
     private readonly httpService = inject(EnrollmentCapacityHttpService);
-    private readonly initialLoadParam = {};
 
     readonly filterForm = signal<FilterFormInterface>({...INITIAL_FILTER_FORM});
     readonly modalForm = signal<ModalFormInterface>({...INITIAL_MODAL_FORM});
@@ -28,26 +27,9 @@ export class EnrollmentCapacityStore {
     readonly chartOptions = signal<ChartOptionsInterface>(DEFAULT_CHART_OPTIONS);
     readonly selectedSubjectId = signal<string | null>(null);
 
-    readonly careersResource = rxResource({
-        params: () => this.initialLoadParam,
-        stream: () => this.httpService.findCareers(),
-    });
-    readonly careers = computed<CatalogueInterface[]>(() => this.careersResource.value() ?? []);
-    readonly careersError = computed(() => this.careersResource.error() ? 'Error al cargar carreras' : null);
-
-    readonly schoolPeriodsResource = rxResource({
-        params: () => this.initialLoadParam,
-        stream: () => this.httpService.findSchoolPeriods(),
-    });
-    readonly schoolPeriods = computed<CatalogueInterface[]>(() => this.schoolPeriodsResource.value() ?? []);
-    readonly schoolPeriodsError = computed(() => this.schoolPeriodsResource.error() ? 'Error al cargar períodos escolares' : null);
-
-    readonly cataloguesResource = rxResource({
-        params: () => this.initialLoadParam,
-        stream: () => this.httpService.findCatalogues(),
-    });
-    readonly catalogues = computed<CatalogueInterface[]>(() => this.cataloguesResource.value() ?? []);
-    readonly cataloguesError = computed(() => this.cataloguesResource.error() ? 'Error al cargar catálogos' : null);
+    readonly careers = signal<CatalogueInterface[]>([]);
+    readonly schoolPeriods = signal<CatalogueInterface[]>([]);
+    readonly catalogues = signal<CatalogueInterface[]>([]);
 
     readonly subjectsResource = rxResource({
         params: () => this.filterForm().careerId || undefined,
@@ -74,6 +56,12 @@ export class EnrollmentCapacityStore {
     });
     readonly enrolledCountsRaw = this.enrolledCountsResource.value;
 
+    constructor() {
+        this.httpService.findCareers().subscribe(data => this.careers.set(data));
+        this.httpService.findSchoolPeriods().subscribe(data => this.schoolPeriods.set(data));
+        this.httpService.findCatalogues().subscribe(data => this.catalogues.set(data));
+    }
+
     selectSubject(subjectId: string | null): void {
         this.selectedSubjectId.set(subjectId);
     }
@@ -86,11 +74,5 @@ export class EnrollmentCapacityStore {
 
     reloadDistributions(): void {
         this.distributionsResource.reload();
-    }
-
-    loadInitialData(): void {
-        this.careersResource.reload();
-        this.schoolPeriodsResource.reload();
-        this.cataloguesResource.reload();
     }
 }

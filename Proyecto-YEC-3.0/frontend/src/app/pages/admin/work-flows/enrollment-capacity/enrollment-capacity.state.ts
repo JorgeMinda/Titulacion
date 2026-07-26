@@ -97,7 +97,6 @@ export interface CellInterface {
     maxCapacity: number;
     enrolledCount: number;
     statusColor: 'green' | 'orange' | 'red';
-    teacherDistributionId: string;
 }
 
 export interface RowInterface {
@@ -217,3 +216,11 @@ export const DEFAULT_CHART_OPTIONS = {
         },
     },
 } satisfies ChartOptionsInterface;
+
+export const ERROR_MESSAGES = {
+    CAREERS_LOAD: 'Error al cargar carreras',
+    SCHOOL_PERIODS_LOAD: 'Error al cargar períodos escolares',
+    CATALOGUES_LOAD: 'Error al cargar catálogos',
+    SAVE_DISTRIBUTION: 'No se pudo guardar la distribución',
+    DELETE_DISTRIBUTION: 'No se pudo eliminar la distribución',
+} as const;

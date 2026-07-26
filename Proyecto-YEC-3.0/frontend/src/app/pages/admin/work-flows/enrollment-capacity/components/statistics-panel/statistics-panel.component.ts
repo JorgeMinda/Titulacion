@@ -1,5 +1,4 @@
-//Muestra totales (cupos, paralelos, etc.) según los filtros.
-import {Component, input, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 import {ChartModule} from 'primeng/chart';
 import {
     EnrollmentCapacityStatistics,
@@ -13,7 +12,7 @@ import {
     templateUrl: './statistics-panel.component.html',
 })
 export class StatisticsPanelComponent {
-    chartData=input.required<ChartDataInterface> ();
-   chartOptions=input.required<ChartOptionsInterface>();
- statistics=input.required<EnrollmentCapacityStatistics>();
+    readonly chartData = input.required<ChartDataInterface>();
+    readonly chartOptions = input.required<ChartOptionsInterface>();
+    readonly statistics = input.required<EnrollmentCapacityStatistics>();
 }

@@ -39,7 +39,6 @@ export function buildCellFromDistribution(
         maxCapacity: capacity,
         enrolledCount: enrolled,
         statusColor: calculateStatusColor(capacity, enrolled),
-        teacherDistributionId: dist.id,
     };
 }
 

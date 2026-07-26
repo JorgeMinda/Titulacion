@@ -1,4 +1,5 @@
 import {computed, inject, Injectable} from '@angular/core';
+import {CatalogueInterface} from '@utils/interfaces';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
 import {CATALOGUE_TYPE_PARALLEL, CATALOGUE_TYPE_WORKDAY, CATALOGUE_TYPE_CLASSROOM} from '../../enrollment-capacity.state';
 import {buildEnrollmentMatrix, calculateEnrollmentStatistics, buildEnrollmentChart, buildCountsMap} from './enrollment-capacity.helpers';
@@ -8,15 +9,15 @@ export class EnrollmentCapacitySelectors {
     private readonly store = inject(EnrollmentCapacityStore);
 
     readonly parallels = computed(() =>
-        this.store.catalogues().filter((c) => c.type === CATALOGUE_TYPE_PARALLEL)
+        this.store.catalogues().filter((c: CatalogueInterface) => c.type === CATALOGUE_TYPE_PARALLEL)
     );
 
     readonly workdays = computed(() =>
-        this.store.catalogues().filter((c) => c.type === CATALOGUE_TYPE_WORKDAY)
+        this.store.catalogues().filter((c: CatalogueInterface) => c.type === CATALOGUE_TYPE_WORKDAY)
     );
 
     readonly classrooms = computed(() =>
-        this.store.catalogues().filter((c) => c.type === CATALOGUE_TYPE_CLASSROOM)
+        this.store.catalogues().filter((c: CatalogueInterface) => c.type === CATALOGUE_TYPE_CLASSROOM)
     );
 
     readonly enrolledCounts = computed(() =>
@@ -65,9 +66,6 @@ export class EnrollmentCapacitySelectors {
     );
 
     readonly isLoading = computed(() =>
-        this.store.careersResource.isLoading() ||
-        this.store.schoolPeriodsResource.isLoading() ||
-        this.store.cataloguesResource.isLoading() ||
         this.store.subjectsResource.isLoading() ||
         this.store.distributionsResource.isLoading() ||
         this.store.enrolledCountsResource.isLoading()

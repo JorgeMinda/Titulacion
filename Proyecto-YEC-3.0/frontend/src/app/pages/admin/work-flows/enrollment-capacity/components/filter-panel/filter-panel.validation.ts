@@ -6,6 +6,6 @@ export function validateFilterForm(schema: SchemaPathTree<FilterFormInterface>):
         message: 'El período escolar es requerido',
     });
     required(schema.careerId, {
-    message: 'La carrera es requerida',
-});
+        message: 'La carrera es requerida',
+    });
 }

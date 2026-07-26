@@ -1,13 +1,16 @@
 <div class="flex flex-col gap-6 p-4">
     <p-confirmDialog [style]="{ width: '450px' }" [baseZIndex]="10000"></p-confirmDialog>
 
-    <app-filter-panel></app-filter-panel>
+    <app-filter-panel
+        [careers]="store.careers()"
+        [schoolPeriods]="store.schoolPeriods()">
+    </app-filter-panel>
 
     @if (selectors.hasBothFilters()) {
         <app-level-cards
             [subjects]="store.subjects()"
             [selectedSubjectId]="store.selectedSubjectId()"
-            (selectSubject)="store.selectSubject($event)">
+            (selectSubject)="onSelectSubject($event)">
         </app-level-cards>
     }
 
@@ -70,10 +73,11 @@
     <app-capacity-modal
         [visible]="store.modalVisible()"
         [editMode]="store.isEditMode()"
+        [selectedLevelName]="selectedLevelName()"
+        [initialFormValues]="store.modalForm()"
         [workdays]="selectors.workdays()"
         [classrooms]="selectors.classrooms()"
-        [subjects]="store.subjects()"
-        (save)="confirmSave()"
+        (save)="onModalSave($event)"
         (delete)="confirmDelete()"
         (close)="store.closeModal()">
     </app-capacity-modal>

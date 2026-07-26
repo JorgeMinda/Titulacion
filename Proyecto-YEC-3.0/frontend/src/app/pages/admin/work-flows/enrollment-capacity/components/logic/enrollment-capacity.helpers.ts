@@ -8,8 +8,8 @@ import {
     ChartDataInterface,
 } from '../../enrollment-capacity.state';
 
-const FALLBACK_WORKDAY = 'Sin Jornada';
-const FALLBACK_SUBJECT = 'Sin Materia';
+export const FALLBACK_WORKDAY = 'Sin Jornada';
+export const FALLBACK_SUBJECT = 'Sin Materia';
 
 export function calculateStatusColor(capacity: number, enrolled: number): 'green' | 'orange' | 'red' {
     if (capacity === 0) return 'red';
@@ -19,11 +19,22 @@ export function calculateStatusColor(capacity: number, enrolled: number): 'green
     return 'green';
 }
 
+const CELL_CLASSES: Record<'green' | 'orange' | 'red', string> = {
+    green: 'border-green-400 bg-green-50',
+    orange: 'border-orange-400 bg-orange-50',
+    red: 'border-red-400 bg-red-50',
+};
+
+export function getCellClasses(statusColor: 'green' | 'orange' | 'red'): string {
+    return CELL_CLASSES[statusColor];
+}
+
 export function buildCellFromDistribution(
     dist: TeacherDistributionInterface,
     enrolled: number,
 ): CellInterface {
     const capacity = dist.capacity || 0;
+    const statusColor = calculateStatusColor(capacity, enrolled);
     return {
         id: dist.id,
         schedule: dist.workday?.name || FALLBACK_WORKDAY,
@@ -38,7 +49,8 @@ export function buildCellFromDistribution(
         academicLevel: dist.subject?.curriculum?.career?.name || '',
         maxCapacity: capacity,
         enrolledCount: enrolled,
-        statusColor: calculateStatusColor(capacity, enrolled),
+        statusColor,
+        cssClass: getCellClasses(statusColor),
     };
 }
 
@@ -75,7 +87,7 @@ export function buildEnrollmentMatrix(
     return Array.from(workdayMap.entries()).map(([workdayId, {workdayName, cells}]) => ({
         workdayId,
         workdayName,
-        scheduleBlocks: [{scheduleName: workdayName, cells}],
+        cells,
     }));
 }
 

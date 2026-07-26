@@ -1,5 +1,4 @@
-// filter-panel.component.ts
-import {Component, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, effect, inject, input, OnDestroy, OnInit, signal} from '@angular/core';
 import {FieldTree, form} from '@angular/forms/signals';
 import {FormsModule} from '@angular/forms';
 import {Select} from 'primeng/select';
@@ -7,6 +6,7 @@ import {LabelDirective} from '@utils/directives/label.directive';
 import {ErrorMessageDirective} from '@utils/directives/error-message.directive';
 import {FormRegistryService} from '@utils/services/form-registry.service';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
+import {CatalogueInterface} from '@utils/interfaces';
 import {FilterFormInterface, INITIAL_FILTER_FORM} from '../../enrollment-capacity.state';
 import {validateFilterForm} from './filter-panel.validation';
 
@@ -21,7 +21,9 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
     private readonly formRegistryService = inject(FormRegistryService);
     protected readonly store = inject(EnrollmentCapacityStore);
 
-    // 🔹 Estado LOCAL del formulario — el store ya no es la fuente directa
+    readonly careers = input.required<CatalogueInterface[]>();
+    readonly schoolPeriods = input.required<CatalogueInterface[]>();
+
     private readonly localFilterForm = signal<FilterFormInterface>({...INITIAL_FILTER_FORM});
 
     protected readonly formData: FieldTree<FilterFormInterface> = this.buildForm();
@@ -31,7 +33,6 @@ export class FilterPanelComponent implements OnInit, OnDestroy {
     };
 
     constructor() {
-        // 🔹 Solo sincroniza hacia el store cuando el formulario es válido
         effect(() => {
             const value = this.localFilterForm();
             const isValid = this.formData().valid();

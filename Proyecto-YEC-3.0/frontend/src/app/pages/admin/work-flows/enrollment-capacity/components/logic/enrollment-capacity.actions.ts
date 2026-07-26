@@ -5,6 +5,7 @@ import {EnrollmentCapacityHttpService} from '../../enrollment-capacity.service';
 import {
     CellInterface,
     CreateTeacherDistributionPayload,
+    ModalFormInterface,
     UpdateTeacherDistributionPayload,
     TeacherDistributionInterface,
     INITIAL_MODAL_FORM,
@@ -21,6 +22,7 @@ export class EnrollmentCapacityActions {
         this.store.modalForm.set({
             ...INITIAL_MODAL_FORM,
             subjectId: subjectId || null,
+            schoolPeriodId: this.store.filterForm().schoolPeriodId,
         });
         this.store.modalVisible.set(true);
     }
@@ -34,19 +36,13 @@ export class EnrollmentCapacityActions {
             workdayId: cell.workdayId,
             subjectId: cell.subjectId,
             classroomId: cell.classroomId,
+            schoolPeriodId: cell.schoolPeriodId,
         });
         this.store.modalVisible.set(true);
     }
 
     save(payload: {
-        modalData: {
-            capacity: number;
-            subjectId: string | null;
-            workdayId: string | null;
-            parallelId: string | null;
-            classroomId: string | null;
-            hours?: number;
-        };
+        modalData: ModalFormInterface;
         firstParallelId: string;
     }): Observable<TeacherDistributionInterface> {
         if (this.store.isEditMode()) {
@@ -56,10 +52,7 @@ export class EnrollmentCapacityActions {
     }
 
     private update(payload: {
-        modalData: {
-            capacity: number;
-            classroomId: string | null;
-        };
+        modalData: ModalFormInterface;
     }): Observable<TeacherDistributionInterface> {
         const cell = this.store.selectedCell();
         if (!cell) return of();
@@ -76,14 +69,7 @@ export class EnrollmentCapacityActions {
     }
 
     private create(payload: {
-        modalData: {
-            capacity: number;
-            subjectId: string | null;
-            workdayId: string | null;
-            parallelId: string | null;
-            classroomId: string | null;
-            hours?: number;
-        };
+        modalData: ModalFormInterface;
         firstParallelId: string;
     }): Observable<TeacherDistributionInterface> {
         const {modalData, firstParallelId} = payload;
@@ -102,7 +88,7 @@ export class EnrollmentCapacityActions {
             parallelId,
             workdayId: modalData.workdayId,
             subjectId: modalData.subjectId,
-            schoolPeriodId: this.store.filterForm().schoolPeriodId,
+            schoolPeriodId: modalData.schoolPeriodId,
             classroomId: modalData.classroomId,
             hours: modalData.hours || 4,
         };

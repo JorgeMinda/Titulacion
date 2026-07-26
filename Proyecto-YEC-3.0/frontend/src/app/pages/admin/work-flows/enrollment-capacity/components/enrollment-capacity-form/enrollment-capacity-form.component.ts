@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject} from '@angular/core';
+import {Component, computed, DestroyRef, inject} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ConfirmDialog} from 'primeng/confirmdialog';
 import {ConfirmationService} from 'primeng/api';
@@ -11,7 +11,7 @@ import {LevelCardsComponent} from '../level-cards/level-cards.component';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
 import {EnrollmentCapacitySelectors} from '../logic/enrollment-capacity.selectors';
 import {EnrollmentCapacityActions} from '../logic/enrollment-capacity.actions';
-import {CellInterface, ERROR_MESSAGES} from '../../enrollment-capacity.state';
+import {CellInterface, ERROR_MESSAGES, ModalFormInterface} from '../../enrollment-capacity.state';
 import {BreadcrumbService} from '@layout/service/breadcrumb.service';
 import {MY_ROUTES} from '@routes';
 import {CustomMessageService, FormRegistryService} from '@utils/services';
@@ -41,6 +41,15 @@ export class EnrollmentCapacityFormComponent {
     protected readonly actions = inject(EnrollmentCapacityActions);
     protected readonly CustomIcons = CustomIcons;
 
+    protected readonly selectedLevelName = computed(() => {
+        const id = this.store.selectedSubjectId();
+        if (!id) return '';
+        const subject = this.store.subjects().find(s => s.id === id);
+        return subject?.name ?? '';
+    });
+
+    private pendingModalData: ModalFormInterface | null = null;
+
     constructor() {
         this.breadcrumbService.setItems([
             {
@@ -58,7 +67,16 @@ export class EnrollmentCapacityFormComponent {
         this.actions.openEditModal(cell);
     }
 
-    protected confirmSave(): void {
+    protected onSelectSubject(subjectId: string | null): void {
+        this.store.selectSubject(subjectId);
+    }
+
+    protected onModalSave(data: ModalFormInterface): void {
+        this.pendingModalData = data;
+        this.confirmSave();
+    }
+
+    private confirmSave(): void {
         const isEdit = this.store.isEditMode();
 
         if (!isEdit && this.formRegistryService.hasErrors()) {
@@ -109,7 +127,8 @@ export class EnrollmentCapacityFormComponent {
     }
 
     private saveDistribution(): void {
-        const modalData = this.store.modalForm();
+        const modalData = this.pendingModalData;
+        if (!modalData) return;
 
         this.actions.save({
             modalData,

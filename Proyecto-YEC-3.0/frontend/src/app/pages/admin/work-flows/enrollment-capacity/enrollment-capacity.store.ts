@@ -13,6 +13,7 @@ import {
     INITIAL_FILTER_FORM,
     INITIAL_MODAL_FORM,
     DEFAULT_CHART_OPTIONS,
+    ERROR_MESSAGES,
 } from './enrollment-capacity.state';
 
 @Injectable({providedIn: 'root'})
@@ -54,12 +55,21 @@ export class EnrollmentCapacityStore {
         stream: ({params: ids}) =>
             ids.length ? this.httpService.findEnrolledCounts(ids) : of({}),
     });
-    readonly enrolledCountsRaw = this.enrolledCountsResource.value;
+    readonly enrolledCountsRaw = computed(() => this.enrolledCountsResource.value() ?? {});
 
     constructor() {
-        this.httpService.findCareers().subscribe(data => this.careers.set(data));
-        this.httpService.findSchoolPeriods().subscribe(data => this.schoolPeriods.set(data));
-        this.httpService.findCatalogues().subscribe(data => this.catalogues.set(data));
+        this.httpService.findCareers().subscribe({
+            next: data => this.careers.set(data),
+            error: () => console.error(ERROR_MESSAGES.CAREERS_LOAD),
+        });
+        this.httpService.findSchoolPeriods().subscribe({
+            next: data => this.schoolPeriods.set(data),
+            error: () => console.error(ERROR_MESSAGES.SCHOOL_PERIODS_LOAD),
+        });
+        this.httpService.findCatalogues().subscribe({
+            next: data => this.catalogues.set(data),
+            error: () => console.error(ERROR_MESSAGES.CATALOGUES_LOAD),
+        });
     }
 
     selectSubject(subjectId: string | null): void {

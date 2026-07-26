@@ -97,15 +97,13 @@ export interface CellInterface {
     maxCapacity: number;
     enrolledCount: number;
     statusColor: 'green' | 'orange' | 'red';
+    cssClass: string;
 }
 
 export interface RowInterface {
     workdayId: string;
     workdayName: string;
-    scheduleBlocks: {
-        scheduleName: string;
-        cells: CellInterface[];
-    }[];
+    cells: CellInterface[];
 }
 
 export interface EnrollmentCapacityStatistics {
@@ -151,6 +149,7 @@ export interface ModalFormInterface {
     workdayId: string | null;
     subjectId: string | null;
     classroomId: string | null;
+    schoolPeriodId: string;
     teacherId?: string;
     hours?: number;
 }
@@ -161,6 +160,7 @@ export const INITIAL_MODAL_FORM = {
     workdayId: null,
     subjectId: null,
     classroomId: null,
+    schoolPeriodId: '',
     hours: 4,
 } satisfies ModalFormInterface;
 

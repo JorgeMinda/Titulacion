@@ -18,12 +18,9 @@ export class EnrollmentCapacityHttpService {
     private readonly httpClient = inject(HttpClient);
     private readonly apiUrl = environment.API_URL;
 
-    /**
-     * Helper para extraer arrays de manera segura y con tipado fuerte.
-     * Clean Architecture: Aísla la lógica de transformación de la llamada HTTP.
-     */
     private extractArray<T>(response: HttpResponseInterface): T[] {
-        return Array.isArray(response.data) ? (response.data as T[]) : [];
+        if (!Array.isArray(response.data)) return [];
+        return response.data as T[];
     }
 
     findCareers(): Observable<CatalogueInterface[]> {
@@ -84,17 +81,13 @@ export class EnrollmentCapacityHttpService {
 
     register(payload: CreateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.post<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, payload).pipe(
-            map((response): TeacherDistributionInterface =>
-                Array.isArray(response.data) ? response.data[0] : (response.data as TeacherDistributionInterface)
-            )
+            map((response) => response.data as TeacherDistributionInterface)
         );
     }
 
     update(id: string, payload: UpdateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.patch<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/${id}`, payload).pipe(
-            map((response): TeacherDistributionInterface =>
-                Array.isArray(response.data) ? response.data[0] : (response.data as TeacherDistributionInterface)
-            )
+            map((response) => response.data as TeacherDistributionInterface)
         );
     }
 

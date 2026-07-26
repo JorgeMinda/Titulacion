@@ -12,39 +12,32 @@
                         <h4 class="text-md font-bold text-slate-700">{{ workday.workdayName }}</h4>
                     </div>
 
-                    @for (block of workday.scheduleBlocks; ; track block.scheduleName) {
-                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
-                            @for (cell of block.cells; track cell.id) {
-                                <div
-                                    class="relative flex flex-col p-3 rounded-lg border-2 cursor-pointer transition-transform hover:scale-105"
-                                    [class.border-green-400]="cell.statusColor === 'green'"
-                                    [class.bg-green-50]="cell.statusColor === 'green'"
-                                    [class.border-orange-400]="cell.statusColor === 'orange'"
-                                    [class.bg-orange-50]="cell.statusColor === 'orange'"
-                                    [class.border-red-400]="cell.statusColor === 'red'"
-                                    [class.bg-red-50]="cell.statusColor === 'red'"
-                                    (click)="edit.emit(cell)">
-                                    @if (cell.academicLevel) {
-                                        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 opacity-80">
-                                            {{ cell.academicLevel }}
-                                        </div>
-                                    }
-
-                                    <div class="flex justify-between items-center mb-2">
-                                        <span class="font-black text-lg text-slate-800">{{ cell.classroom || 'Sin aula' }}</span>
-                                        <span class="text-xs font-bold px-2 py-1 rounded-full bg-white bg-opacity-60 text-slate-700">
-                                            {{ cell.enrolledCount }} / {{ cell.maxCapacity }}
-                                        </span>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pt-2">
+                        @for (cell of workday.cells; track cell.id) {
+                            <div
+                                class="relative flex flex-col p-3 rounded-lg border-2 cursor-pointer transition-transform hover:scale-105"
+                                [class]="cell.cssClass"
+                                (click)="edit.emit(cell)">
+                                @if (cell.academicLevel) {
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 opacity-80">
+                                        {{ cell.academicLevel }}
                                     </div>
+                                }
 
-                                    <span class="text-xs text-slate-500 font-semibold truncate" title="{{ cell.subject }}">
-                                        <i [class]="CustomIcons.BOOK_SOLID + ' mr-1'"></i>
-                                        {{ cell.subject }}
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-black text-lg text-slate-800">{{ cell.classroom || 'Sin aula' }}</span>
+                                    <span class="text-xs font-bold px-2 py-1 rounded-full bg-white bg-opacity-60 text-slate-700">
+                                        {{ cell.enrolledCount }} / {{ cell.maxCapacity }}
                                     </span>
                                 </div>
-                            }
-                        </div>
-                    }
+
+                                <span class="text-xs text-slate-500 font-semibold truncate" title="{{ cell.subject }}">
+                                    <i [class]="CustomIcons.BOOK_SOLID + ' mr-1'"></i>
+                                    {{ cell.subject }}
+                                </span>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>

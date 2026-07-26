@@ -21,7 +21,7 @@ export class EnrollmentCapacitySelectors {
     );
 
     readonly enrolledCounts = computed(() =>
-        buildCountsMap(this.store.distributions(), this.store.enrolledCountsRaw() ?? {})
+        buildCountsMap(this.store.distributions(), this.store.enrolledCountsRaw())
     );
 
     readonly filteredDistributions = computed(() => {

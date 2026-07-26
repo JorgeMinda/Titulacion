@@ -1,6 +1,6 @@
-import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable, map, of, tap, catchError} from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, of } from 'rxjs';
 import {
     TeacherDistributionInterface,
     FilterFormInterface,
@@ -8,17 +8,20 @@ import {
     UpdateTeacherDistributionPayload,
     SubjectInterface,
 } from './enrollment-capacity.state';
-import {CatalogueInterface} from '@utils/interfaces';
-import {HttpResponseInterface} from '@utils/interfaces';
-import {environment} from '@env/environment';
+import { CatalogueInterface, HttpResponseInterface } from '@utils/interfaces';
+import { environment } from '@env/environment';
 
 type RawCatalogueItem = { id: string; name: string; code?: string; acronym?: string };
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class EnrollmentCapacityHttpService {
     private readonly httpClient = inject(HttpClient);
     private readonly apiUrl = environment.API_URL;
 
+    /**
+     * Helper para extraer arrays de manera segura y con tipado fuerte.
+     * Clean Architecture: Aísla la lógica de transformación de la llamada HTTP.
+     */
     private extractArray<T>(response: HttpResponseInterface): T[] {
         return Array.isArray(response.data) ? (response.data as T[]) : [];
     }
@@ -31,11 +34,8 @@ export class EnrollmentCapacityHttpService {
                     name: item.name,
                     code: (item.code || item.acronym) ?? '',
                 }))
-            ),
-            catchError((err) => {
-                console.error('Error fetching careers:', err);
-                return of([]);
-            }),
+            )
+            // ✅ SIN catchError: Dejamos que el error fluya hacia rxResource en el Store.
         );
     }
 
@@ -47,25 +47,18 @@ export class EnrollmentCapacityHttpService {
                     name: item.name,
                     code: item.code ?? '',
                 }))
-            ),
-            catchError((err) => {
-                console.error('Error fetching school periods:', err);
-                return of([]);
-            }),
+            )
         );
     }
 
     findSubjectsByCareer(careerId: string): Observable<SubjectInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/careers/${careerId}/subjects`).pipe(
-            map((response) => this.extractArray<SubjectInterface>(response)),
-            catchError((err) => {
-                console.error('Error fetching subjects:', err);
-                return of([]);
-            }),
+            map((response) => this.extractArray<SubjectInterface>(response))
         );
     }
 
     findAllDistributions(filters: Partial<FilterFormInterface>): Observable<TeacherDistributionInterface[]> {
+        // ✅ Guard clause válido: no es un error, es una condición de negocio para no hacer peticiones inútiles.
         if (!filters.schoolPeriodId) {
             return of([]);
         }
@@ -77,29 +70,22 @@ export class EnrollmentCapacityHttpService {
             }
         });
 
-        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, {params}).pipe(
-            map((response) => this.extractArray<TeacherDistributionInterface>(response)),
-            catchError((err) => {
-                console.error('Error fetching distributions:', err);
-                return of([]);
-            }),
+        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, { params }).pipe(
+            map((response) => this.extractArray<TeacherDistributionInterface>(response))
         );
     }
 
     findCatalogues(): Observable<CatalogueInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/common/catalogues/cache`).pipe(
-            map((response) => (Array.isArray(response.data) ? response.data : []) as CatalogueInterface[]),
-            catchError((err) => {
-                console.error('Error fetching catalogues:', err);
-                return of([]);
-            }),
+            // Unificado con extractArray para consistencia y DRY (Don't Repeat Yourself)
+            map((response) => this.extractArray<CatalogueInterface>(response))
         );
     }
 
     register(payload: CreateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.post<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions`, payload).pipe(
             map((response): TeacherDistributionInterface =>
-                Array.isArray(response.data) ? response.data[0] : response.data as TeacherDistributionInterface
+                Array.isArray(response.data) ? response.data[0] : (response.data as TeacherDistributionInterface)
             )
         );
     }
@@ -107,22 +93,20 @@ export class EnrollmentCapacityHttpService {
     update(id: string, payload: UpdateTeacherDistributionPayload): Observable<TeacherDistributionInterface> {
         return this.httpClient.patch<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/${id}`, payload).pipe(
             map((response): TeacherDistributionInterface =>
-                Array.isArray(response.data) ? response.data[0] : response.data as TeacherDistributionInterface
+                Array.isArray(response.data) ? response.data[0] : (response.data as TeacherDistributionInterface)
             )
         );
     }
 
     findEnrolledCounts(distributionIds: string[]): Observable<Record<string, number>> {
+        // ✅ Guard clause válido
         if (!distributionIds.length) {
             return of({});
         }
+        
         const params = new HttpParams().set('ids', distributionIds.join(','));
-        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/enrolled-counts`, {params}).pipe(
-            map((response) => (response.data || {}) as Record<string, number>),
-            catchError((err) => {
-                console.error('Error fetching enrolled counts:', err);
-                return of({});
-            }),
+        return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/teacher-distributions/enrolled-counts`, { params }).pipe(
+            map((response) => (response.data || {}) as Record<string, number>)
         );
     }
 

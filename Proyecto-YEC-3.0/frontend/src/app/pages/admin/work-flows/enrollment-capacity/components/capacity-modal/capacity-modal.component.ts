@@ -1,4 +1,4 @@
-import {Component, computed, inject, input, output} from '@angular/core';
+import {Component, computed, effect, inject, input, output, signal, untracked} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {FieldTree, form} from '@angular/forms/signals';
 import {Dialog} from 'primeng/dialog';
@@ -10,7 +10,7 @@ import {LabelDirective} from '@utils/directives/label.directive';
 import {ErrorMessageDirective} from '@utils/directives/error-message.directive';
 import {EnrollmentCapacityStore} from '../../enrollment-capacity.store';
 import {
-   
+    INITIAL_MODAL_FORM,
     ModalFormInterface,
     SubjectInterface,
 } from '../../enrollment-capacity.state';
@@ -25,6 +25,24 @@ import {CustomIcons} from '@utils/icons/custom-icons';
 export class CapacityModalComponent {
     protected readonly CustomIcons = CustomIcons;
     protected readonly store = inject(EnrollmentCapacityStore);
+
+    private readonly localModalForm = signal<ModalFormInterface>({...INITIAL_MODAL_FORM});
+
+    constructor() {
+        effect(() => {
+            const value = this.localModalForm();
+            const isValid = this.formData().valid();
+            if (isValid) {
+                this.store.modalForm.set(value);
+            }
+        });
+
+        effect(() => {
+            if (this.visible()) {
+                this.localModalForm.set({...untracked(() => this.store.modalForm())});
+            }
+        });
+    }
 
     readonly visible = input.required<boolean>();
     readonly editMode = input.required<boolean>();
@@ -64,7 +82,7 @@ export class CapacityModalComponent {
     }
 
     private buildForm(): FieldTree<ModalFormInterface> {
-        return form<ModalFormInterface>(this.store.modalForm, (schema) => {
+        return form<ModalFormInterface>(this.localModalForm, (schema) => {
             validateModalForm(schema);
         });
     }

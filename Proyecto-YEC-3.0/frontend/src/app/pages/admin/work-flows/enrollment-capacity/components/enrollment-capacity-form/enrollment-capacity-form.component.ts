@@ -72,8 +72,40 @@ export class EnrollmentCapacityFormComponent {
     }
 
     protected onModalSave(data: ModalFormInterface): void {
+        if (this.isCapacityBelowEnrolled(data.capacity)) {
+            const enrolled = this.store.selectedCell()?.enrolledCount ?? 0;
+            this.customMessageService.showError({
+                summary: 'Capacidad inválida',
+                detail: `La capacidad no puede ser menor a los ${enrolled} estudiantes ya inscritos.`,
+            });
+            return;
+        }
+        if (this.isDuplicateDistribution(data)) {
+            this.customMessageService.showError({
+                summary: 'Cupo duplicado',
+                detail: 'Ya existe un cupo con el mismo paralelo y horario para este nivel.',
+            });
+            return;
+        }
         this.pendingModalData = data;
         this.confirmSave();
+    }
+
+    private isCapacityBelowEnrolled(capacity: number): boolean {
+        if (!this.store.isEditMode()) return false;
+        const enrolled = this.store.selectedCell()?.enrolledCount ?? 0;
+        return capacity < enrolled;
+    }
+
+    private isDuplicateDistribution(data: ModalFormInterface): boolean {
+        if (this.store.isEditMode()) return false;
+        if (!data.subjectId) return false;
+
+        return this.store.distributions().some((d) =>
+            d.subjectId === data.subjectId &&
+            d.parallelId === data.parallelId &&
+            d.workdayId === data.workdayId
+        );
     }
 
     private confirmSave(): void {

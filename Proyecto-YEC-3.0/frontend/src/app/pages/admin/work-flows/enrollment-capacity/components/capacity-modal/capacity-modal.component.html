@@ -14,56 +14,51 @@
             </div>
         </div>
 
-        @if (!editMode()) {
-            <div class="custom-form-field">
-                <label
-                    appLabel
-                    for="workdayId"
-                    label="Horario"
-                    [field]="formData.workdayId">
-                </label>
+        <div class="custom-form-field">
+            <label
+                appLabel
+                for="workdayId"
+                label="Horario"
+                [field]="formData.workdayId">
+            </label>
 
-                <p-select
-                    id="workdayId"
-                    name="workdayId"
-                    [options]="workdays()"
-                    optionLabel="name"
-                    optionValue="id"
-                    [(ngModel)]="formData.workdayId().value"
-                    placeholder="Seleccione un horario"
-                    appendTo="body"
-                    styleClass="w-full">
-                </p-select>
+            <p-select
+                id="workdayId"
+                name="workdayId"
+                [options]="workdays()"
+                optionLabel="name"
+                optionValue="id"
+                [(ngModel)]="formData.workdayId().value"
+                placeholder="Seleccione un horario"
+                appendTo="body"
+                styleClass="w-full">
+            </p-select>
 
-                <small [appErrorMessage]="errorFields.workdayId"></small>
-            </div>
+            <small [appErrorMessage]="errorFields.workdayId"></small>
+        </div>
 
-        }
+        <div class="custom-form-field">
+            <label
+                appLabel
+                for="parallelId"
+                label="Paralelo"
+                [field]="formData.parallelId">
+            </label>
 
-        @if (editMode()) {
-            <div class="custom-form-field">
-                <label
-                    appLabel
-                    for="classroomId"
-                    label="Aula"
-                    [field]="formData.classroomId">
-                </label>
+            <p-select
+                id="parallelId"
+                name="parallelId"
+                [options]="parallels()"
+                optionLabel="name"
+                optionValue="id"
+                [(ngModel)]="formData.parallelId().value"
+                placeholder="Seleccione un paralelo"
+                appendTo="body"
+                styleClass="w-full">
+            </p-select>
 
-                <p-select
-                    id="classroomId"
-                    name="classroomId"
-                    [options]="classrooms()"
-                    optionLabel="name"
-                    optionValue="id"
-                    [(ngModel)]="formData.classroomId().value"
-                    placeholder="Seleccione un aula"
-                    appendTo="body"
-                    styleClass="w-full">
-                </p-select>
-
-                <small [appErrorMessage]="errorFields.classroomId"></small>
-            </div>
-        }
+            <small [appErrorMessage]="errorFields.parallelId"></small>
+        </div>
 
         <div class="custom-form-field">
             <label

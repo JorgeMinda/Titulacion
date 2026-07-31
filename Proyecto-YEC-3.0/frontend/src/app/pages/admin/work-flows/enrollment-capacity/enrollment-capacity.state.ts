@@ -7,13 +7,9 @@ export interface SubjectInterface {
         name: string;
         description?: string;
     };
-    curriculum?: {
+    career?: {
         id: string;
         name: string;
-        career?: {
-            id: string;
-            name: string;
-        };
     };
 }
 
@@ -55,13 +51,9 @@ export interface TeacherDistributionInterface {
             name: string;
             description?: string;
         };
-        curriculum?: {
+        career?: {
             id: string;
             name: string;
-            career?: {
-                id: string;
-                name: string;
-            };
         };
     };
     workday?: {

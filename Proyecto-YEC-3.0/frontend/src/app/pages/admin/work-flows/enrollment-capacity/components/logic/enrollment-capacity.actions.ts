@@ -59,11 +59,11 @@ export class EnrollmentCapacityActions {
 
         const data: UpdateTeacherDistributionPayload = {
             capacity: payload.modalData.capacity,
-            parallelId: cell.parallelId,
-            workdayId: cell.workdayId,
+            parallelId: payload.modalData.parallelId || cell.parallelId,
+            workdayId: payload.modalData.workdayId || cell.workdayId,
             subjectId: cell.subjectId,
             schoolPeriodId: cell.schoolPeriodId,
-            classroomId: payload.modalData.classroomId || cell.classroomId,
+            classroomId: cell.classroomId,
         };
         return this.httpService.update(cell.id, data);
     }

@@ -46,7 +46,7 @@ export function buildCellFromDistribution(
         schoolPeriodId: dist.schoolPeriodId,
         classroomId: dist.classroomId,
         classroom: dist.classroom?.name || 'Sin aula',
-        academicLevel: dist.subject?.curriculum?.career?.name || '',
+        academicLevel: dist.subject?.career?.name || '',
         maxCapacity: capacity,
         enrolledCount: enrolled,
         statusColor,

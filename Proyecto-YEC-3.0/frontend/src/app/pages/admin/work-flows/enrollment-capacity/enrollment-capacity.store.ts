@@ -1,6 +1,5 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
-import {rxResource} from '@angular/core/rxjs-interop';
-import {of} from 'rxjs';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {Subscription} from 'rxjs';
 import {CatalogueInterface} from '@utils/interfaces';
 import {EnrollmentCapacityHttpService} from './enrollment-capacity.service';
 import {
@@ -13,7 +12,6 @@ import {
     INITIAL_FILTER_FORM,
     INITIAL_MODAL_FORM,
     DEFAULT_CHART_OPTIONS,
-    ERROR_MESSAGES,
 } from './enrollment-capacity.state';
 
 @Injectable({providedIn: 'root'})
@@ -32,43 +30,74 @@ export class EnrollmentCapacityStore {
     readonly schoolPeriods = signal<CatalogueInterface[]>([]);
     readonly catalogues = signal<CatalogueInterface[]>([]);
 
-    readonly subjectsResource = rxResource({
-        params: () => this.filterForm().careerId || undefined,
-        stream: ({params: careerId}) =>
-            careerId ? this.httpService.findSubjectsByCareer(careerId) : of([]),
-    });
-    readonly subjects = computed<SubjectInterface[]>(() => this.subjectsResource.value() ?? []);
+    readonly subjects = signal<SubjectInterface[]>([]);
+    readonly subjectsLoading = signal<boolean>(false);
+    readonly distributions = signal<TeacherDistributionInterface[]>([]);
+    readonly distributionsLoading = signal<boolean>(false);
+    readonly enrolledCounts = signal<Record<string, number>>({});
+    readonly enrolledCountsLoading = signal<boolean>(false);
 
-    readonly distributionsResource = rxResource({
-        params: () => this.filterForm().schoolPeriodId || undefined,
-        stream: ({params: schoolPeriodId}) =>
-            schoolPeriodId
-                ? this.httpService.findAllDistributions({schoolPeriodId})
-                : of([]),
-    });
-    readonly distributions = computed<TeacherDistributionInterface[]>(() =>
-        this.distributionsResource.value() ?? []
-    );
-
-    readonly enrolledCountsResource = rxResource({
-        params: () => this.distributions().map(d => d.id),
-        stream: ({params: ids}) =>
-            ids.length ? this.httpService.findEnrolledCounts(ids) : of({}),
-    });
-    readonly enrolledCountsRaw = computed(() => this.enrolledCountsResource.value() ?? {});
+    private subjectsSubscription: Subscription | null = null;
+    private distributionsSubscription: Subscription | null = null;
+    private countsSubscription: Subscription | null = null;
 
     constructor() {
         this.httpService.findCareers().subscribe({
             next: data => this.careers.set(data),
-            error: () => console.error(ERROR_MESSAGES.CAREERS_LOAD),
+            error: () => {},
         });
         this.httpService.findSchoolPeriods().subscribe({
             next: data => this.schoolPeriods.set(data),
-            error: () => console.error(ERROR_MESSAGES.SCHOOL_PERIODS_LOAD),
+            error: () => {},
         });
         this.httpService.findCatalogues().subscribe({
             next: data => this.catalogues.set(data),
-            error: () => console.error(ERROR_MESSAGES.CATALOGUES_LOAD),
+            error: () => {},
+        });
+
+        effect(() => {
+            const careerId = this.filterForm().careerId;
+            this.subjectsSubscription?.unsubscribe();
+            this.subjectsSubscription = null;
+            this.subjects.set([]);
+            if (!careerId) return;
+
+            this.subjectsLoading.set(true);
+            this.subjectsSubscription = this.httpService.findSubjectsByCareer(careerId).subscribe({
+                next: data => {
+                    this.subjects.set(data);
+                    this.subjectsLoading.set(false);
+                },
+                error: () => {
+                    this.subjectsLoading.set(false);
+                },
+            });
+        });
+
+        effect(() => {
+            this.loadDistributions(true);
+        });
+
+        effect(() => {
+            const ids = this.distributions().map(d => d.id);
+            this.countsSubscription?.unsubscribe();
+            this.countsSubscription = null;
+            if (!ids.length) {
+                this.enrolledCounts.set({});
+                this.enrolledCountsLoading.set(false);
+                return;
+            }
+
+            this.enrolledCountsLoading.set(true);
+            this.countsSubscription = this.httpService.findEnrolledCounts(ids).subscribe({
+                next: data => {
+                    this.enrolledCounts.set(data);
+                    this.enrolledCountsLoading.set(false);
+                },
+                error: () => {
+                    this.enrolledCountsLoading.set(false);
+                },
+            });
         });
     }
 
@@ -83,6 +112,29 @@ export class EnrollmentCapacityStore {
     }
 
     reloadDistributions(): void {
-        this.distributionsResource.reload();
+        this.loadDistributions(false);
+    }
+
+    private loadDistributions(reset: boolean): void {
+        const schoolPeriodId = this.filterForm().schoolPeriodId;
+        this.distributionsSubscription?.unsubscribe();
+        this.distributionsSubscription = null;
+        if (!schoolPeriodId) {
+            this.distributions.set([]);
+            this.distributionsLoading.set(false);
+            return;
+        }
+
+        if (reset) this.distributions.set([]);
+        this.distributionsLoading.set(true);
+        this.distributionsSubscription = this.httpService.findAllDistributions({schoolPeriodId}).subscribe({
+            next: data => {
+                this.distributions.set(data);
+                this.distributionsLoading.set(false);
+            },
+            error: () => {
+                this.distributionsLoading.set(false);
+            },
+        });
     }
 }

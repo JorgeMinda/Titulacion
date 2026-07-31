@@ -18,6 +18,10 @@ export function validateModalForm(schema: SchemaPathTree<ModalFormInterface>): v
         message: 'La jornada es requerida',
     });
 
+    required(schema.parallelId, {
+        message: 'El paralelo es requerido',
+    });
+
     required(schema.subjectId, {
         message: 'La materia es requerida',
     });

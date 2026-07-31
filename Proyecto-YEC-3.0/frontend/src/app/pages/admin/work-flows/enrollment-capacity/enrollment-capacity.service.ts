@@ -32,7 +32,7 @@ export class EnrollmentCapacityHttpService {
                     code: (item.code || item.acronym) ?? '',
                 }))
             )
-            // ✅ SIN catchError: Dejamos que el error fluya hacia rxResource en el Store.
+            
         );
     }
 
@@ -55,7 +55,7 @@ export class EnrollmentCapacityHttpService {
     }
 
     findAllDistributions(filters: Partial<FilterFormInterface>): Observable<TeacherDistributionInterface[]> {
-        // ✅ Guard clause válido: no es un error, es una condición de negocio para no hacer peticiones inútiles.
+        
         if (!filters.schoolPeriodId) {
             return of([]);
         }
@@ -74,7 +74,7 @@ export class EnrollmentCapacityHttpService {
 
     findCatalogues(): Observable<CatalogueInterface[]> {
         return this.httpClient.get<HttpResponseInterface>(`${this.apiUrl}/common/catalogues/cache`).pipe(
-            // Unificado con extractArray para consistencia y DRY (Don't Repeat Yourself)
+           
             map((response) => this.extractArray<CatalogueInterface>(response))
         );
     }
@@ -92,8 +92,7 @@ export class EnrollmentCapacityHttpService {
     }
 
     findEnrolledCounts(distributionIds: string[]): Observable<Record<string, number>> {
-        // ✅ Guard clause válido
-        if (!distributionIds.length) {
+               if (!distributionIds.length) {
             return of({});
         }
         

@@ -21,7 +21,7 @@ export class EnrollmentCapacitySelectors {
     );
 
     readonly enrolledCounts = computed(() =>
-        buildCountsMap(this.store.distributions(), this.store.enrolledCountsRaw())
+        buildCountsMap(this.store.distributions(), this.store.enrolledCounts())
     );
 
     readonly filteredDistributions = computed(() => {
@@ -66,8 +66,8 @@ export class EnrollmentCapacitySelectors {
     );
 
     readonly isLoading = computed(() =>
-        this.store.subjectsResource.isLoading() ||
-        this.store.distributionsResource.isLoading() ||
-        this.store.enrolledCountsResource.isLoading()
+        this.store.subjectsLoading() ||
+        this.store.distributionsLoading() ||
+        this.store.enrolledCountsLoading()
     );
 }

@@ -11,7 +11,6 @@ import {ErrorMessageDirective} from '@utils/directives/error-message.directive';
 import {
     INITIAL_MODAL_FORM,
     ModalFormInterface,
-    SubjectInterface,
 } from '../../enrollment-capacity.state';
 import {validateModalForm} from './capacity-modal.validation';
 import {CustomIcons} from '@utils/icons/custom-icons';
@@ -29,8 +28,8 @@ export class CapacityModalComponent {
     readonly selectedLevelName = input<string>('');
     readonly initialFormValues = input<ModalFormInterface>({...INITIAL_MODAL_FORM});
     readonly workdays = input.required<CatalogueInterface[]>();
-    readonly classrooms = input.required<CatalogueInterface[]>();
-    
+    readonly parallels = input.required<CatalogueInterface[]>();
+
     readonly save = output<ModalFormInterface>();
     readonly delete = output<void>();
     readonly close = output<void>();
@@ -40,7 +39,7 @@ export class CapacityModalComponent {
 
     protected readonly errorFields = {
         workdayId: this.formData.workdayId as FieldTree<any>,
-        classroomId: this.formData.classroomId as FieldTree<any>,
+        parallelId: this.formData.parallelId as FieldTree<any>,
         capacity: this.formData.capacity as FieldTree<any>,
     };
 

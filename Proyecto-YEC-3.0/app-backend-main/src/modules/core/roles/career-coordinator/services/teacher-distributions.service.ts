@@ -92,10 +92,9 @@ export class TeacherDistributionsService {
   }
 
   async update(id: string, payload: UpdateTeacherDistributionDto): Promise<TeacherDistributionEntity> {
-    const entity = await this.findOne(id);
-    this.repository.merge(entity, payload);
-    const saved = await this.repository.save(entity);
-    return await this.findOne(saved.id);
+    await this.findOne(id);
+    await this.repository.update(id, payload);
+    return await this.findOne(id);
   }
 
   async remove(id: string): Promise<TeacherDistributionEntity> {
